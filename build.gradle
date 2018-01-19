@@ -1,0 +1,30 @@
+group 'de.upb.ds'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'application'
+
+sourceCompatibility = 1.8
+mainClassName = 'de.upb.ds.Surnia.SurniaQA'
+
+configurations.all {
+    resolutionStrategy {
+        force 'xml-apis:xml-apis:1.4.01'
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'edu.stanford.nlp', name: 'stanford-corenlp', version: '3.8.0'
+    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.4'
+    compile group: 'org.apache.jena', name: 'jena-core', version: '3.6.0'
+    compile group: 'org.apache.jena', name: 'jena-arq', version: '3.6.0'
+    compile group: 'xml-apis', name: 'xml-apis', version: '1.4.01'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.9.3'
+    compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
