@@ -52,7 +52,7 @@ public class ProcessingPipeline {
 
     // POS tags for that DBOIndex should try to find a matching ontology property
     private final static List<String> DBO_INDEX_TAGS = Arrays.asList(new String[]{
-            "FW", "JJ", "JJR", "JJS", "NN", "NNS", "RB", "RBR", "RBS", "VB", "VBN"
+            "FW", "JJ", "JJR", "JJS", "NN", "NNS", "RB", "RBR", "RBS", "VB", "VBN", "VBD"
     });
 
     public ProcessingPipeline () {
