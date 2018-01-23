@@ -69,13 +69,24 @@
   },
   {
     "questionStartWord": ["IS"],
-    "containsSuperlative": true,
+    "containsSuperlative": false,
     "resourceAmount": 1,
     "ontologyAmount": 1,
     "sparqlParams": ["O1", "R1"],
     "sparqlTemplate": "ASK WHERE { ?R1 ?O1 ?y . }",
     "exampleQuestions": [
       "VBZ R1 O1 ."
+    ]
+  },
+  {
+    "questionStartWord": ["WHO"],
+    "containsSuperlative": false,
+    "resourceAmount": 1,
+    "ontologyAmount": 2,
+    "sparqlParams": ["O1", "O2", "R1"],
+    "sparqlTemplate": "SELECT DISTINCT ?x WHERE { ?R1 ?O2 ?y . ?y ?O1 ?x .}",
+    "exampleQuestions": [
+      "WP VBZ DT O1 IN DT O2 IN R1 ."
     ]
   }
 ]
