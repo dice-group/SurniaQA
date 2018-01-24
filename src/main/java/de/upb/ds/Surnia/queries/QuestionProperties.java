@@ -2,7 +2,6 @@ package de.upb.ds.Surnia.queries;
 
 import de.upb.ds.Surnia.preprocessing.Token;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,33 +11,30 @@ public class QuestionProperties {
     public String questionStart;
     public int resourceAmount = 0;
     public int ontologyAmount = 0;
-    public String[] resources;
-    public String[] ontologies;
+    public List<List<String>> resources;
+    public List<List<String>> ontologies;
     public String representationForm;
 
     public QuestionProperties(List<Token> questionTokens) {
         // Set all properties for the question according to the question tokens
         if (questionTokens.size() > 0) {
             questionStart = questionTokens.get(0).getText();
-            resources = new String[questionTokens.size()];
-            ontologies = new String[questionTokens.size()];
+            resources = new LinkedList<>();
+            ontologies = new LinkedList<>();
             LinkedList<String> representationFormElements = new LinkedList<>();
             for (Token token : questionTokens) {
                 if (token.getType().equals("JJS") || token.getType().equals("RBS")) {
                     containsSuperlative = true;
                 }
                 if (token.getURIs() != null) {
-                    for (String uri : token.getURIs()) {
-                        if (uri.contains("http://dbpedia.org/resource/")) {
-                            resources[resourceAmount++] = uri;
-                            representationFormElements.add("R" + resourceAmount);
-                            break;
-                        }
-                        if (uri.contains("http://dbpedia.org/ontology/")) {
-                            ontologies[ontologyAmount++] = uri;
-                            representationFormElements.add("O" + ontologyAmount);
-                            break;
-                        }
+                    if (token.getURIs().get(0).contains("http://dbpedia.org/resource/")) {
+                        resources.add(token.getURIs());
+                        resourceAmount++;
+                        representationFormElements.add("R" + resourceAmount);
+                    } else if (token.getURIs().get(0).contains("http://dbpedia.org/ontology/")) {
+                        ontologies.add(token.getURIs());
+                        ontologyAmount++;
+                        representationFormElements.add("O" + ontologyAmount);
                     }
                 } else {
                     representationFormElements.add(token.getType());
@@ -55,8 +51,8 @@ public class QuestionProperties {
                 ", questionStart='" + questionStart + '\'' +
                 ", resourceAmount=" + resourceAmount +
                 ", ontologyAmount=" + ontologyAmount +
-                ", resources=" + Arrays.toString(resources) +
-                ", ontologies=" + Arrays.toString(ontologies) +
+                ", resources=" + resources +
+                ", ontologies=" + ontologies +
                 ", representationForm='" + representationForm + '\'' +
                 '}';
     }

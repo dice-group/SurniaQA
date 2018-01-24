@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.upb.ds.Surnia.preprocessing.Token;
 import org.apache.jena.query.ParameterizedSparqlString;
-import org.apache.jena.rdf.model.ResourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
@@ -113,20 +112,11 @@ public class QueryPatternMatcher {
         LinkedList<ParameterizedSparqlString> possibleQueries = new LinkedList<>();
         for (Query query: queries) {
             if (rateQuery(questionProperties, query) >= QUERY_RANKING_THRESHOld) {
-                ParameterizedSparqlString sparqlString = new ParameterizedSparqlString(query.sparqlTemplate);
-                // Replace parameters of the query
-                for (String param : query.sparqlParams) {
-                    if (param.charAt(0) == 'R') {
-                        logger.info("Replace: " + param + " with " + questionProperties.resources[Integer.valueOf(param.substring(1)) - 1]);
-                        sparqlString.setParam(param, ResourceFactory.createResource(questionProperties.resources[Integer.valueOf(param.substring(1)) - 1]));
-                    } else if (param.charAt(0) == 'O') {
-                        logger.info("Replace: " + param + " with " + questionProperties.ontologies[Integer.valueOf(param.substring(1)) - 1]);
-                        sparqlString.setParam(param, ResourceFactory.createResource(questionProperties.ontologies[Integer.valueOf(param.substring(1)) - 1]));
-                    }
-                }
-                possibleQueries.add(sparqlString);
+                QueryParameterReplacer queryParameterReplacer = new QueryParameterReplacer(questionProperties, query);
+                possibleQueries.addAll(queryParameterReplacer.getQueriesWithReplacedParameters());
             }
         }
+        logger.info("Query amount: " + possibleQueries.size());
         return possibleQueries;
     }
 
