@@ -12,7 +12,7 @@
     ]
   },
   {
-    "questionStartWord": ["IN", "HOW", "WHO", "WHICH"],
+    "questionStartWord": ["IN", "HOW", "WHO", "WHICH", "WHAT"],
     "containsSuperlative": false,
     "resourceAmount": 1,
     "ontologyAmount": 1,
@@ -31,17 +31,6 @@
       "WRB JJ VBD R1 O1 .",
       "IN WDT NN VBZ DT R1 O1 .",
       "WP VBD R1 O1 ."
-    ]
-  },
-  {
-    "questionStartWord": ["HOW", "WHO", "IN", "WHAT"],
-    "containsSuperlative": false,
-    "resourceAmount": 1,
-    "ontologyAmount": 1,
-    "sparqlParams": ["O1", "R1"],
-    "sparqlTemplate": "SELECT DISTINCT ?x WHERE { ?R1 ?O1 ?x . }",
-    "exampleQuestions": [
-
     ]
   },
   {
