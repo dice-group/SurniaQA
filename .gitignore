@@ -66,6 +66,13 @@ fabric.properties
 # Sonarlint plugin
 .idea/sonarlint
 
+### Eclipse ###
+.project
+.classpath
+.settings/
+bin/
+
+
 ### Java ###
 # Compiled class file
 *.class
