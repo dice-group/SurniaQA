@@ -33,6 +33,7 @@ public class QueryPatternMatcher {
                 ObjectMapper mapper = new ObjectMapper();
                 queries = mapper.readValue(jsonString, new TypeReference<ArrayList<Query>>() {});
             }
+            reader.close();
         } catch (Exception e) {
             e.printStackTrace();
         }

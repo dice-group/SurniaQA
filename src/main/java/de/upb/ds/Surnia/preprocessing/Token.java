@@ -1,6 +1,5 @@
 package de.upb.ds.Surnia.preprocessing;
 
-import java.util.LinkedList;
 import java.util.List;
 
 public class Token {

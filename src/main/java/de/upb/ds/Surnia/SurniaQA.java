@@ -73,6 +73,7 @@ public class SurniaQA {
                     questions = mapper.readValue(node.get("questions").toString(), new TypeReference<ArrayList<QALDQuestion>>() {});
                 }
             }
+            reader.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
