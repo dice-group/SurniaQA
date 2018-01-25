@@ -3,6 +3,7 @@ version '1.0-SNAPSHOT'
 
 apply plugin: 'java'
 apply plugin: 'application'
+apply plugin: 'checkstyle'
 
 sourceCompatibility = 1.8
 mainClassName = 'de.upb.ds.Surnia.SurniaQA'
@@ -11,6 +12,10 @@ configurations.all {
     resolutionStrategy {
         force 'xml-apis:xml-apis:1.4.01'
     }
+}
+
+checkstyle {
+    toolVersion "8.7"
 }
 
 repositories {
