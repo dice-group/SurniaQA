@@ -6,7 +6,7 @@ apply plugin: 'application'
 apply plugin: 'checkstyle'
 
 sourceCompatibility = 1.8
-mainClassName = 'de.upb.ds.Surnia.SurniaQA'
+mainClassName = 'de.upb.ds.surnia.SurniaQuestionAnswering'
 
 configurations.all {
     resolutionStrategy {
