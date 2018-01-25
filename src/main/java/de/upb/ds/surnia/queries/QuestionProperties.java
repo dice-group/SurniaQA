@@ -50,14 +50,14 @@ public class QuestionProperties {
 
   @Override
   public String toString() {
-    return "QuestionProperties{"
-            + "containsSuperlative=" + containsSuperlative
-            + ", questionStart='" + questionStart + '\''
-            + ", resourceAmount=" + resourceAmount
-            + ", ontologyAmount=" + ontologyAmount
-            + ", resources=" + resources
-            + ", ontologies=" + ontologies
-            + ", representationForm='" + representationForm + '\''
+    return "QuestionProperties{\n"
+            + "\tcontainsSuperlative=" + containsSuperlative + '\n'
+            + "\tquestionStart='" + questionStart + '\'' + '\n'
+            + "\tresourceAmount=" + resourceAmount + '\n'
+            + "\tontologyAmount=" + ontologyAmount + '\n'
+            + "\tresources=" + resources + '\n'
+            + "\tontologies=" + ontologies + '\n'
+            + "\trepresentationForm='" + representationForm + '\'' + '\n'
             + '}';
   }
 }
