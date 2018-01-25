@@ -32,6 +32,8 @@ public class SurniaQuestionAnswering {
     List<Question> questions = readQuestions("qald-7-train-multilingual.json");
     ProcessingPipeline preprocessingPipeline = new ProcessingPipeline();
     QueryPatternMatcher queryPatternMatcher = new QueryPatternMatcher("Queries.json");
+    LinkedList<Integer> questionsWithoutQuery = new LinkedList<>();
+    LinkedList<Integer> questionsWithoutResult = new LinkedList<>();
     try {
       for (Question question : questions) {
         logger.info("Question " + question.id + ": " + question.questionString);
@@ -41,15 +43,21 @@ public class SurniaQuestionAnswering {
         List<ParameterizedSparqlString> queries = queryPatternMatcher.findMatchingQueries(tokens);
         if (queries.size() > 0) {
           logger.info("DBpedia results: ");
+          boolean foundResult = false;
           for (ParameterizedSparqlString query : queries) {
             if (queryDBpedia(query)) {
+              foundResult = true;
               break;
             } else {
               logger.info("Query returned no result");
             }
           }
+          if (!foundResult) {
+            questionsWithoutResult.add(question.id);
+          }
         } else {
           logger.info("No query with a rating above the threshold found.");
+          questionsWithoutQuery.add(question.id);
         }
         logger.info("*********************************************************************");
 
@@ -62,6 +70,14 @@ public class SurniaQuestionAnswering {
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
+    logger.info("\n\n\n");
+    int missingQueries = questionsWithoutQuery.size();
+    logger.info(String.valueOf(missingQueries) + " Questions where no query was found: ");
+    questionsWithoutQuery.forEach(i -> logger.info(String.valueOf(i)));
+    logger.info("\n\n\n");
+    int missingResults = questionsWithoutResult.size();
+    logger.info(String.valueOf(missingResults) + "Questions where no result was found: ");
+    questionsWithoutResult.forEach(i -> logger.info(String.valueOf(i)));
   }
 
   /**
