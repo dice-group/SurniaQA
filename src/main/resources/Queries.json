@@ -12,7 +12,7 @@
     ]
   },
   {
-    "questionStartWord": ["IN", "HOW", "WHO", "WHICH", "WHAT"],
+    "questionStartWord": ["IN", "HOW", "WHO", "WHICH", "WHAT", "WHERE"],
     "containsSuperlative": false,
     "resourceAmount": 1,
     "ontologyAmount": 1,
@@ -76,6 +76,17 @@
     "sparqlTemplate": "SELECT DISTINCT ?x WHERE { ?R1 ?O2 ?y . ?y ?O1 ?x .}",
     "exampleQuestions": [
       "WP VBZ DT O1 IN DT O2 IN R1 ."
+    ]
+  },
+  {
+    "questionStartWord": ["DO"],
+    "containsSuperlative": false,
+    "resourceAmount": 2,
+    "ontologyAmount": 1,
+    "sparqlParams": ["O1", "R1", "R2"],
+    "sparqlTemplate": "ASK WHERE { ?R1 ?O1 ?x . ?R2 ?O1 ?x . }",
+    "exampleQuestions": [
+      "VB R1 CC R2 VBP DT JJ O1 ."
     ]
   }
 ]
