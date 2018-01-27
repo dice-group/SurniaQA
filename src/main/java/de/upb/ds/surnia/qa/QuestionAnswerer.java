@@ -49,6 +49,15 @@ public class QuestionAnswerer {
       logger.error("Error while processing question", e);
     }
     String resultingQuery = "";
+    question.setAnswerType("");
+    JSONArray answerArray = new JSONArray();
+    JSONObject answerElement = new JSONObject();
+    answerElement.put("head", new JSONObject());
+    answerElement.put("results", new JSONObject());
+    answerArray.add(answerElement);
+    JSONObject answer = new JSONObject();
+    answer.put("answer", answerArray);
+    question.setAnswerAsQALDJSON(answer);
     // Get a list with all queries rated above the threshold for the question and query DBpedia
     List<ParameterizedSparqlString> queries = queryPatternMatcher.findMatchingQueries(tokens);
     if (queries.size() > 0) {
@@ -100,7 +109,7 @@ public class QuestionAnswerer {
             } else {
               type = "uri";
             }
-            JSONObject answerElement = new JSONObject();
+            answerElement = new JSONObject();
             JSONObject head = new JSONObject();
             JSONArray headVars = new JSONArray();
             headVars.add("x");
@@ -112,51 +121,41 @@ public class QuestionAnswerer {
               JSONObject bindingElement = new JSONObject();
               JSONObject binding = new JSONObject();
               binding.put("type", type);
-              if (node.isLiteral()) {
-                binding.put("value", node.asLiteral().getValue());
+              if (n.isLiteral()) {
+                binding.put("value", n.asLiteral().getValue().toString());
               } else {
-                binding.put("value", node.asNode().getURI());
+                binding.put("value", n.asNode().getURI());
               }
               bindingElement.put("x", binding);
               bindings.add(bindingElement);
             }
             resultsObject.put("bindings", bindings);
             answerElement.put("results", resultsObject);
-            JSONArray answerArray = new JSONArray();
+            answerArray = new JSONArray();
             answerArray.add(answerElement);
-            JSONObject answer = new JSONObject();
+            answer = new JSONObject();
             answer.put("answer", answerArray);
             question.setAnswerAsQALDJSON(answer);
             resultingQuery = query.toString();
             break;
           } else {
             logger.info("Query returned no result");
-            question.setAnswerType("");
-            JSONArray answerArray = new JSONArray();
-            JSONObject answerElement = new JSONObject();
-            answerElement.put("head", new JSONObject());
-            answerElement.put("results", new JSONObject());
-            answerArray.add(answerElement);
-            JSONObject answer = new JSONObject();
-            answer.put("answer", answerArray);
-            question.setAnswerAsQALDJSON(answer);
           }
         } else if (queryStringRepresentation.contains("ASK")) {
           question.setAnswerType("boolean");
           resultingQuery = query.toString();
-          JSONObject answerElement = new JSONObject();
+          answerElement = new JSONObject();
           answerElement.put("head", new JSONObject());
           answerElement.put("results", new JSONObject());
           answerElement.put("boolean", askQueryDBpedia(query));
-          JSONArray answerArray = new JSONArray();
+          answerArray = new JSONArray();
           answerArray.add(answerElement);
-          JSONObject answer = new JSONObject();
+          answer = new JSONObject();
           answer.put("answer", answerArray);
           question.setAnswerAsQALDJSON(answer);
           break;
         }
       }
-
     } else {
       logger.info("No query with a rating above the threshold found.");
     }
