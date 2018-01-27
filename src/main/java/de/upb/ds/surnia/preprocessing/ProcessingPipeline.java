@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
+import org.aksw.hawk.index.DBOIndex;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -44,7 +45,7 @@ public class ProcessingPipeline {
   private StanfordCoreNLPClient nlpClient;
   private HttpClient httpClient;
   private HttpPost foxPost;
-  private OntologyIndex dboIndex;
+  private DBOIndex dboIndex;
 
   // JSON template for a FOX request
   private static final String FOX_REQUEST_PAYLOAD = "{\n"
@@ -80,17 +81,7 @@ public class ProcessingPipeline {
     foxPost = new HttpPost(FOX_URL);
 
     // Init OntologyIndex
-    dboIndex = new OntologyIndex();
-  }
-
-  /**
-   * Terminate all clients.
-   * @throws InterruptedException Interruption while closing CoreNLP client.
-   */
-  public void close() throws InterruptedException {
-    nlpClient.shutdown();
-    foxPost.abort();
-    dboIndex.close();
+    dboIndex = new DBOIndex();
   }
 
   /**
