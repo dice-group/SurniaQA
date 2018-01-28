@@ -48,12 +48,12 @@
   {
     "questionStartWord": ["WHAT"],
     "containsSuperlative": true,
-    "resourceAmount": 1,
+    "resourceAmount": 0,
     "ontologyAmount": 1,
-    "sparqlParams": ["O1", "R1"],
-    "sparqlTemplate": "SELECT DISTINCT ?x WHERE { ?x a ?O1 . ?x ?R1 ?n . } ORDER BY DESC(?n) OFFSET 0 LIMIT 1",
+    "sparqlParams": ["O1"],
+    "sparqlTemplate": "SELECT DISTINCT ?x WHERE { ?x a ?O1 . ?x <http://dbpedia.org/ontology/areaTotal> ?n . } ORDER BY DESC(?n) OFFSET 0 LIMIT 1",
     "exampleQuestions": [
-      "WP VBZ DT O1 R1 IN DT NN ."
+      "WP VBZ DT JJS O1 IN DT NN ."
     ]
   },
   {
@@ -87,6 +87,140 @@
     "sparqlTemplate": "ASK WHERE { ?R1 ?O1 ?x . ?R2 ?O1 ?x . }",
     "exampleQuestions": [
       "VB R1 CC R2 VBP DT JJ O1 ."
+    ]
+  },
+  {
+    "questionStartWord": ["LIST", "GIVE"],
+    "containsSuperlative": false,
+    "resourceAmount": 1,
+    "ontologyAmount": 2,
+    "sparqlParams": ["O1", "O2", "R1"],
+    "sparqlTemplate": "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> SELECT DISTINCT ?x WHERE { ?x rdf:type ?O1 . ?x ?O2 ?R1 . }",
+    "exampleQuestions": [
+      "VB PDT DT O1 IN O2 IN R1 .",
+      "VB PRP DT O1 NNS O2 IN R1"
+    ]
+  },
+  {
+    "questionStartWord": ["IN"],
+    "containsSuperlative": false,
+    "resourceAmount": 2,
+    "ontologyAmount": 2,
+    "sparqlParams": ["O1", "O2", "R1", "R2"],
+    "sparqlTemplate": "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> SELECT DISTINCT ?x WHERE {  ?x rdf:type ?O1 .  ?x ?O2 ?R1 .  ?x ?O2 ?R2 . }",
+    "exampleQuestions": [
+      "IN WDT O1 VBD R1 RB RB IN R2 O2 ."
+    ]
+  },
+  {
+    "questionStartWord": ["How"],
+    "containsSuperlative": false,
+    "resourceAmount": 1,
+    "ontologyAmount": 1,
+    "sparqlParams": ["O1", "R1"],
+    "sparqlTemplate": "SELECT (COUNT(DISTINCT ?y) as ?x) WHERE {  ?R1 ?O1 ?y . }",
+    "exampleQuestions": [
+      "WRB RB VBD R1 O1 ."
+    ]
+  },
+  {
+    "questionStartWord": ["IS"],
+    "containsSuperlative": false,
+    "resourceAmount": 2,
+    "ontologyAmount": 1,
+    "sparqlParams": ["O1", "R1", "R2"],
+    "sparqlTemplate": "ASK WHERE { ?R2 ?O1 ?R1 . }",
+    "exampleQuestions": [
+      "VBZ R1 O1 IN R2 .",
+      "VBZ R1 DT O1 IN R2 ."
+    ]
+  },
+  {
+    "questionStartWord": ["WHAT"],
+    "containsSuperlative": true,
+    "resourceAmount": 1,
+    "ontologyAmount": 2,
+    "sparqlParams": ["O1", "O2", "R1"],
+    "sparqlTemplate": "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> SELECT DISTINCT ?x WHERE { ?x rdf:type ?O2 . ? dbo:locatedInArea ?R1 . ?uri ?O1 ?y . } ORDER BY DESC(?y) LIMIT 1",
+    "exampleQuestions": [
+      "WP VBZ DT O1 O2 IN R1 ."
+    ]
+  },
+  {
+    "questionStartWord": ["GIVE"],
+    "containsSuperlative": false,
+    "resourceAmount": 1,
+    "ontologyAmount": 2,
+    "sparqlParams": ["O1", "O2", "R1"],
+    "sparqlTemplate": "SELECT DISTINCT ?x WHERE {  ?y ?O2 ?R1 .  ?y ?O1 ?x . }",
+    "exampleQuestions": [
+      "VB PRP DT NNS O1 IN NNS O2 IN R1 ."
+    ]
+  },
+  {
+    "questionStartWord": ["HOW"],
+    "containsSuperlative": false,
+    "resourceAmount": 1,
+    "ontologyAmount": 2,
+    "sparqlParams": ["O1", "O2", "R1"],
+    "sparqlTemplate": "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> SELECT (COUNT(DISTINCT ?y) as ?x) WHERE { ?y rdf:ype ?O1 .  ?y ?O2 ?z . ?R1 ?O2 ?z . }",
+    "exampleQuestions": [
+      "WRB JJ O1 VBD O2 IN DT JJ NN IN R1 ."
+    ]
+  },
+  {
+    "questionStartWord": ["Was"],
+    "containsSuperlative": false,
+    "resourceAmount": 2,
+    "ontologyAmount": 0,
+    "sparqlParams": ["R1", "R2"],
+    "sparqlTemplate": "PREFIX dbo: <http://dbpedia.org/ontology/> ASK WHERE { ?R1 dbo:date ?x . ?R2 dbo:date ?y . FILTER (?x < ?y) }",
+    "exampleQuestions": [
+      "VBD DT R1 JJR IN DT R2 ."
+    ]
+  },
+  {
+    "questionStartWord": ["WHICH"],
+    "containsSuperlative": false,
+    "resourceAmount": 2,
+    "ontologyAmount": 3,
+    "sparqlParams": ["O1", "O2", "O3", "R1", "R2"],
+    "sparqlTemplate": "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> SELECT DISTINCT ?x WHERE { ?x rdf:type ?O1 . ?x ?O2 ?R1 . ?x ?O3 ?R2 . }",
+    "exampleQuestions": [
+      "WDT O1 O2 R1 VBD O3 IN R3 ."
+    ]
+  },
+  {
+    "questionStartWord": ["DOES"],
+    "containsSuperlative": false,
+    "resourceAmount": 1,
+    "ontologyAmount": 2,
+    "sparqlParams": ["O1", "O2", "R1"],
+    "sparqlTemplate": "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ASK WHERE { ?x ?O1 ?R1 . ?x rdf:type ?O2 . }",
+    "exampleQuestions": [
+      "VBZ DT R1 O1 IN DT O2 ."
+    ]
+  },
+  {
+    "questionStartWord": ["DID"],
+    "containsSuperlative": false,
+    "resourceAmount": 1,
+    "ontologyAmount": 1,
+    "sparqlParams": ["O1", "R1"],
+    "sparqlTemplate": "ASK WHERE { ?R1 ?O1 ?x . }",
+    "exampleQuestions": [
+      "VBD R1 VBP NNS ."
+    ]
+  },
+  {
+    "questionStartWord": ["WHICH"],
+    "containsSuperlative": false,
+    "resourceAmount": 1,
+    "ontologyAmount": 2,
+    "sparqlParams": ["O1", "O2", "R1"],
+    "sparqlTemplate": "SELECT DISTINCT ?x WHERE { ?R1 ?O2 ?y . ?y ?O1 ?x . }",
+    "exampleQuestions": [
+      "WDT O1 VBD R1 O2 IN ."
     ]
   }
 ]
