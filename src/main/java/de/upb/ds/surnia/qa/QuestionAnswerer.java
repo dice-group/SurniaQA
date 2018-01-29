@@ -51,10 +51,9 @@ public class QuestionAnswerer {
     String resultingQuery = "";
     question.setAnswerType("");
     JSONArray answerArray = new JSONArray();
-    JSONObject answerElement = new JSONObject();
-    answerElement.put("head", new JSONObject());
-    answerElement.put("results", new JSONObject());
-    answerArray.add(answerElement);
+    answer.put("head", new JSONObject());
+    answer.put("results", new JSONObject());
+    answerArray.add(answer);
     JSONObject answer = new JSONObject();
     answer.put("answer", answerArray);
     question.setAnswerAsQALDJSON(answer);
@@ -109,12 +108,11 @@ public class QuestionAnswerer {
             } else {
               type = "uri";
             }
-            answerElement = new JSONObject();
             JSONObject head = new JSONObject();
             JSONArray headVars = new JSONArray();
             headVars.add("x");
             head.put("vars", headVars);
-            answerElement.put("head", head);
+            answer.put("head", head);
             JSONObject resultsObject = new JSONObject();
             JSONArray bindings = new JSONArray();
             for (RDFNode n : results) {
@@ -130,9 +128,8 @@ public class QuestionAnswerer {
               bindings.add(bindingElement);
             }
             resultsObject.put("bindings", bindings);
-            answerElement.put("results", resultsObject);
+            answer.put("results", resultsObject);
             answerArray = new JSONArray();
-            answerArray.add(answerElement);
             answer = new JSONObject();
             answer.put("answer", answerArray);
             question.setAnswerAsQALDJSON(answer);
@@ -144,12 +141,11 @@ public class QuestionAnswerer {
         } else if (queryStringRepresentation.contains("ASK")) {
           question.setAnswerType("boolean");
           resultingQuery = query.toString();
-          answerElement = new JSONObject();
-          answerElement.put("head", new JSONObject());
-          answerElement.put("results", new JSONObject());
-          answerElement.put("boolean", askQueryDBpedia(query));
+          answer.put("head", new JSONObject());
+          answer.put("results", new JSONObject());
+          answer.put("boolean", askQueryDBpedia(query));
           answerArray = new JSONArray();
-          answerArray.add(answerElement);
+          answerArray.add(answer);
           answer = new JSONObject();
           answer.put("answer", answerArray);
           question.setAnswerAsQALDJSON(answer);
