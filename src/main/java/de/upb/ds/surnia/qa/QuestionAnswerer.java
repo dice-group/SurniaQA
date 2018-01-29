@@ -50,11 +50,9 @@ public class QuestionAnswerer {
     }
     String resultingQuery = "";
     question.setAnswerType("");
-    JSONArray answerArray = new JSONArray();
     JSONObject answerObject = new JSONObject();
     answerObject.put("head", new JSONObject());
     answerObject.put("results", new JSONObject());
-    answerArray.add(answerObject);
     question.setAnswerAsQALDJSON(answerObject);
     // Get a list with all queries rated above the threshold for the question and query DBpedia
     List<ParameterizedSparqlString> queries = queryPatternMatcher.findMatchingQueries(tokens);
@@ -129,9 +127,6 @@ public class QuestionAnswerer {
             }
             resultsObject.put("bindings", bindings);
             answer.put("results", resultsObject);
-            answerArray = new JSONArray();
-            answer = new JSONObject();
-            answer.put("answer", answerArray);
             question.setAnswerAsQALDJSON(answer);
             resultingQuery = query.toString();
             break;
@@ -141,14 +136,10 @@ public class QuestionAnswerer {
         } else if (queryStringRepresentation.contains("ASK")) {
           question.setAnswerType("boolean");
           resultingQuery = query.toString();
-          JSONObject answer = new JSONObject ();
+          JSONObject answer = new JSONObject();
           answer.put("head", new JSONObject());
           answer.put("results", new JSONObject());
           answer.put("boolean", askQueryDBpedia(query));
-          answerArray = new JSONArray();
-          answerArray.add(answer);
-          answer = new JSONObject();
-          answer.put("answer", answerArray);
           question.setAnswerAsQALDJSON(answer);
           break;
         }
