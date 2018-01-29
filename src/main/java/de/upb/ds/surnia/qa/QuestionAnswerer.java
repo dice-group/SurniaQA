@@ -111,6 +111,7 @@ public class QuestionAnswerer {
             JSONArray headVars = new JSONArray();
             headVars.add("x");
             head.put("vars", headVars);
+            JSONObject answer = new JSONObject();
             answer.put("head", head);
             JSONObject resultsObject = new JSONObject();
             JSONArray bindings = new JSONArray();
