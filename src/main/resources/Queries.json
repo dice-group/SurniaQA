@@ -19,8 +19,8 @@
     "sparqlParams": ["O1", "R1"],
     "sparqlTemplate": "SELECT DISTINCT ?x WHERE { ?R1 ?O1 ?x . }",
     "exampleQuestions": [
-      "WRB O1 VBZ DT R1?",
-      "WP O1 R1?",
+      "WRB O1 VBZ DT R1 .",
+      "WP O1 R1 .",
       "WDT O1 VBZ DT R1 NN IN .",
       "WDT O1 VBD R1 VBP .",
       "WP VBZ DT O1 IN DT R1 .",
@@ -141,7 +141,7 @@
     "resourceAmount": 1,
     "ontologyAmount": 2,
     "sparqlParams": ["O1", "O2", "R1"],
-    "sparqlTemplate": "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> SELECT DISTINCT ?x WHERE { ?x rdf:type ?O2 . ? dbo:locatedInArea ?R1 . ?uri ?O1 ?y . } ORDER BY DESC(?y) LIMIT 1",
+    "sparqlTemplate": "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX dbo: <http://dbpedia.org/ontology/> SELECT DISTINCT ?x WHERE { ?x rdf:type ?O2 . ?x dbo:locatedInArea ?R1 . ?x ?O1 ?y . } ORDER BY DESC(?y) LIMIT 1",
     "exampleQuestions": [
       "WP VBZ DT O1 O2 IN R1 ."
     ]
