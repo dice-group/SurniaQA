@@ -55,9 +55,7 @@ public class QuestionAnswerer {
     answerObject.put("head", new JSONObject());
     answerObject.put("results", new JSONObject());
     answerArray.add(answerObject);
-    JSONObject answer = new JSONObject();
-    answer.put("answers", answerArray);
-    question.setAnswerAsQALDJSON(answer);
+    question.setAnswerAsQALDJSON(answerObject);
     // Get a list with all queries rated above the threshold for the question and query DBpedia
     List<ParameterizedSparqlString> queries = queryPatternMatcher.findMatchingQueries(tokens);
     if (queries.size() > 0) {
