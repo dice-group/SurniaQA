@@ -88,6 +88,7 @@ public class ProcessingPipeline {
    * Processes a question into a List of tokens.
    *
    * @param question Input question.
+   * @throws IOException Error while performing Named Entity Recognition.
    * @return List of tokens extracted from the input question.
    */
   public List<Token> processQuestion(String question) throws IOException {
