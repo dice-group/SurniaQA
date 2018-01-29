@@ -141,6 +141,7 @@ public class QuestionAnswerer {
         } else if (queryStringRepresentation.contains("ASK")) {
           question.setAnswerType("boolean");
           resultingQuery = query.toString();
+          JSONObject answer = new JSONObject ();
           answer.put("head", new JSONObject());
           answer.put("results", new JSONObject());
           answer.put("boolean", askQueryDBpedia(query));
