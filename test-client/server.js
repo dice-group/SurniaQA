@@ -8,15 +8,27 @@ const rl = readline.createInterface({
 
 let index = 0
 
-rl.on('line', () => {
+rl.on('line', (line) => {
+  let questionIndex = parseInt(line)
+  if (typeof questionIndex === 'number' && questionIndex > 0 && questionIndex < qald.questions.length) {
+    queryQuestion(questionIndex)
+  } else {
+    console.log('Wrong index entered - iterating through questions')
+    queryQuestion(index++)
+  }
+
+})
+
+function queryQuestion (index) {
   if (index < qald.questions.length) {
     const question = qald.questions[index++]
+    const questionString = question.question.filter(e => e.language === 'en')[0].string
     request(
       {
         method: 'POST',
         uri: 'http://localhost:8181/ask-gerbil',
         qs: {
-          query: question.question.filter(e => e.language === 'en')[0].string,
+          query: questionString,
           lang: 'en'
         }
       },
@@ -24,13 +36,13 @@ rl.on('line', () => {
         if (error) {
           console.log('Error: ' + error)
         } else {
+          const result = JSON.parse(body).questions[0]
           console.log('ID: ' + question.id)
-          console.log('Question: ' + question.question.filter(e => e.language === 'en')[0].string)
-          console.log('Query: ' + question.query.sparql)
-          const correctAnswer = question.answers
-          console.log('Correct Answer: ' + JSON.stringify(correctAnswer, null, 4))
-          const systemAnswer = JSON.parse(body).questions[0].answers[0].answer
-          console.log('System Answer: ' + JSON.stringify(systemAnswer, null, 4))
+          console.log('Question: ' + questionString)
+          console.log('\nCorrect query: ' + question.query.sparql)
+          console.log('Correct answer: ' + JSON.stringify(question.answers, null, 4))
+          console.log('\nSystem query: ' + result.query.sparql)
+          console.log('System answer: ' + JSON.stringify(result.answers, null, 4))
           console.log('\n****************************************************************************\n')
         }
       }
@@ -38,4 +50,4 @@ rl.on('line', () => {
   } else {
     console.log('No questions remaining')
   }
-})
+}
