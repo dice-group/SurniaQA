@@ -17,7 +17,7 @@ public class QueryPatternMatcher {
 
   static final Logger logger = LoggerFactory.getLogger(QueryPatternMatcher.class);
 
-  public static final float QUERY_RANKING_THRESHOld = 0.5f;
+  public static final float QUERY_RANKING_THRESHOlD = 0.5f;
 
   private List<Query> queries;
 
@@ -54,23 +54,23 @@ public class QueryPatternMatcher {
    * @param query              A query from the prepared query set.
    * @return A ranking for the query regarding the question between 0 and 1.
    */
-  public double rateQuery(QuestionProperties questionProperties, Query query) {
+  public String rateQuery(QuestionProperties questionProperties, Query query) {
     String questionStartWord = questionProperties.questionStart.toUpperCase();
     if (!Arrays.asList(query.questionStartWord).contains(questionStartWord)) {
       logger.info("Wrong question word");
-      return 0.0f;
+      return null;
     }
     if (query.cotainsSuperlative && !questionProperties.containsSuperlative) {
       logger.info("Inconsistent superlative");
-      return 0.0f;
+      return null;
     }
     if (query.resourceAmount > questionProperties.resourceAmount) {
       logger.info("Not enough properties");
-      return 0.0f;
+      return null;
     }
     if (query.ontologyAmount > questionProperties.ontologyAmount) {
       logger.info("Not enough ontologies");
-      return 0.0f;
+      return null;
     }
     double max = 0.0f;
     String question = "";
@@ -107,8 +107,12 @@ public class QueryPatternMatcher {
         question = s1;
       }
     }
-    logger.info(question + " - " + questionProperties.representationForm + ": " + max);
-    return max;
+    if (max >= QUERY_RANKING_THRESHOlD) {
+      logger.info(question + " - " + questionProperties.representationForm + ": " + max);
+      return question;
+    } else {
+      return null;
+    }
   }
 
   /**
@@ -122,7 +126,8 @@ public class QueryPatternMatcher {
     logger.info(questionProperties.toString());
     LinkedList<ParameterizedSparqlString> possibleQueries = new LinkedList<>();
     for (Query query : queries) {
-      if (rateQuery(questionProperties, query) >= QUERY_RANKING_THRESHOld) {
+      String bestExampleQuestion = rateQuery(questionProperties, query);
+      if (bestExampleQuestion != null) {
         QueryParameterReplacer queryParameterReplacer;
         queryParameterReplacer = new QueryParameterReplacer(questionProperties, query);
         possibleQueries.addAll(queryParameterReplacer.getQueriesWithReplacedParameters());

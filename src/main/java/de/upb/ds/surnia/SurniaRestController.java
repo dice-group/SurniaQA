@@ -3,6 +3,7 @@ package de.upb.ds.surnia;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.github.jsonldjava.utils.JsonUtils;
 import de.upb.ds.surnia.gerbil.GerbilFinalResponse;
 import de.upb.ds.surnia.qa.QuestionAnswerer;
 import java.util.Map;
@@ -38,21 +39,16 @@ public class SurniaRestController {
 
     Question q = new Question();
     q.getLanguageToQuestion().put(language, question);
-    JSONObject answer = qa.answerQuestion(q);
 
-    GerbilFinalResponse resp = new GerbilFinalResponse();
-    resp.setQuestions(q, language);
-    ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-    String json = null;
+    JSONObject answer = qa.getAnswersToQuestion(q, language);
+
     try {
-      json = ow.writeValueAsString(resp);
-    } catch (JsonProcessingException e) {
-      logger.error("Error in /ask-gerbil endpoint", e);
+      logger.info("Got: " + JsonUtils.toPrettyString(answer));
+      return JsonUtils.toPrettyString(answer);
+    } catch (Exception e) {
+      logger.error("Error in JSON answer.", e);
+      return "JSON Error";
     }
-
-    logger.info("\n\n JSON object: \n\n" + json);
-
-    return json;
   }
 
 }

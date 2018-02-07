@@ -2,6 +2,7 @@ package de.upb.ds.surnia.qa;
 
 import de.upb.ds.surnia.preprocessing.ProcessingPipeline;
 import de.upb.ds.surnia.preprocessing.Token;
+import de.upb.ds.surnia.qa.AnswerContainer.AnswerType;
 import de.upb.ds.surnia.queries.QueryPatternMatcher;
 import java.io.IOException;
 import java.util.HashSet;
@@ -22,7 +23,7 @@ import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class QuestionAnswerer {
+public class QuestionAnswerer extends AbstractQuestionAnswerer {
 
   static final Logger logger = LoggerFactory.getLogger(QuestionAnswerer.class);
 
@@ -34,26 +35,23 @@ public class QuestionAnswerer {
     queryPatternMatcher = new QueryPatternMatcher("Queries.json");
   }
 
-  /**
-   * Try to find a answer for the question.
-   * @param question Question object.
-   * @return Answer to the question in QALD JSON.
-   */
-  public JSONObject answerQuestion(Question question) {
-    String questionString = question.getLanguageToQuestion().get("en");
+  @Override
+  public AnswerContainer retrieveAnswers(String question, String lang) {
+    // Create your answer container
+    AnswerContainer answers = new AnswerContainer();
+    answers.setType(AnswerType.RESOURCE);
+
+    // Create your answers
+    Set<String> answerSet = new HashSet<String>();
+
     // Analyze question with CoreNLP, FOX and OntologyIndex
     List<Token> tokens = null;
     try {
-      tokens = preprocessingPipeline.processQuestion(questionString);
+      tokens = preprocessingPipeline.processQuestion(question);
     } catch (IOException e) {
       logger.error("Error while processing question", e);
     }
-    String resultingQuery = "";
-    question.setAnswerType("");
-    JSONObject answerObject = new JSONObject();
-    answerObject.put("head", new JSONObject());
-    answerObject.put("results", new JSONObject());
-    question.setAnswerAsQALDJSON(answerObject);
+
     // Get a list with all queries rated above the threshold for the question and query DBpedia
     List<ParameterizedSparqlString> queries = queryPatternMatcher.findMatchingQueries(tokens);
     if (queries.size() > 0) {
@@ -65,9 +63,12 @@ public class QuestionAnswerer {
           if (results != null) {
             RDFNode node = results.toArray(new RDFNode[results.size()])[0];
             if (node.isResource()) {
-              question.setAnswerType("resource");
+              answers.setType(AnswerType.RESOURCE);
+              logger.info("Resource Result.");
             } else if (node.isLiteral()) {
-              switch (node.asNode().getLiteralDatatypeURI()) {
+              String type = node.asNode().getLiteralDatatypeURI();
+              logger.info(type + " Result. ");
+              switch (type) {
                 case "http://www.w3.org/2001/XMLSchema#nonNegativeInteger":
                 case "http://www.w3.org/2001/XMLSchema#decimal":
                 case "http://www.w3.org/2001/XMLSchema#double":
@@ -77,78 +78,53 @@ public class QuestionAnswerer {
                 case "http://www.w3.org/2001/XMLSchema#negativeInteger":
                 case "http://www.w3.org/2001/XMLSchema#nonPositiveInteger":
                 case "http://www.w3.org/2001/XMLSchema#positiveInteger":
+                case "http://www.w3.org/2001/XMLSchema#integer":
                 case "http://www.w3.org/2001/XMLSchema#short":
                 case "http://www.w3.org/2001/XMLSchema#unsignedByte":
                 case "http://www.w3.org/2001/XMLSchema#unsignedInt":
                 case "http://www.w3.org/2001/XMLSchema#unsignedLong":
                 case "http://www.w3.org/2001/XMLSchema#unsignedShort":
-                  question.setAnswerType("number");
+                case "http://www.w3.org/2001/XMLSchema#gYear":
+                  answers.setType(AnswerType.NUMBER);
                   break;
                 case "http://www.w3.org/2001/XMLSchema#date":
-                  question.setAnswerType("date");
+                  answers.setType(AnswerType.DATE);
                   break;
                 case "http://www.w3.org/2001/XMLSchema#string":
-                  question.setAnswerType("string");
+                  answers.setType(AnswerType.STRING);
                   break;
                 case "http://www.w3.org/2001/XMLSchema#boolean":
-                  question.setAnswerType("boolean");
+                  answers.setType(AnswerType.BOOLEAN);
                   break;
                 default:
-                  String type = node.asNode().getLiteralDatatypeURI();
-                  logger.info("Unknown datatype " + type + ". Setting type to list.");
-                  question.setAnswerType("list");
+                  logger.info("Unknown datatype " + type);
               }
             }
-            String type;
-            if (node.isLiteral()) {
-              type = "literal";
-            } else {
-              type = "uri";
-            }
-            JSONObject head = new JSONObject();
-            JSONArray headVars = new JSONArray();
-            headVars.add("x");
-            head.put("vars", headVars);
-            JSONObject answer = new JSONObject();
-            answer.put("head", head);
-            JSONObject resultsObject = new JSONObject();
-            JSONArray bindings = new JSONArray();
             for (RDFNode n : results) {
-              JSONObject bindingElement = new JSONObject();
-              JSONObject binding = new JSONObject();
-              binding.put("type", type);
               if (n.isLiteral()) {
-                binding.put("value", n.asLiteral().getValue().toString());
+                answerSet.add(n.asLiteral().getValue().toString());
               } else {
-                binding.put("value", n.asNode().getURI());
+                answerSet.add(n.asNode().getURI());
               }
-              bindingElement.put("x", binding);
-              bindings.add(bindingElement);
             }
-            resultsObject.put("bindings", bindings);
-            answer.put("results", resultsObject);
-            question.setAnswerAsQALDJSON(answer);
-            resultingQuery = query.toString();
+            answers.setSparqlQuery(query.toString());
             break;
           } else {
             logger.info("Query returned no result");
           }
         } else if (queryStringRepresentation.contains("ASK")) {
-          question.setAnswerType("boolean");
-          resultingQuery = query.toString();
-          JSONObject answer = new JSONObject();
-          answer.put("head", new JSONObject());
-          answer.put("results", new JSONObject());
-          answer.put("boolean", askQueryDBpedia(query));
-          question.setAnswerAsQALDJSON(answer);
+          answers.setSparqlQuery(query.toString());
+          answers.setType(AnswerType.BOOLEAN);
+          answerSet.add(String.valueOf(askQueryDBpedia(query)));
           break;
         }
       }
     } else {
       logger.info("No query with a rating above the threshold found.");
     }
-    question.setSparqlQuery("en", resultingQuery);
-    return question.getAnswerAsQALDJSON();
+
+    answers.setAnswers(answerSet);
+    return answers;
   }
 
   /**

@@ -5,13 +5,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
 import org.aksw.qa.commons.datastructure.Question;
+import org.aksw.qa.commons.load.json.QaldJson;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class GerbilResponseBuilder {
-  static final Logger logger = LoggerFactory.getLogger(GerbilResponseBuilder.class);
+
+  private Logger log = LoggerFactory.getLogger(GerbilResponseBuilder.class);
   private String id;
   private String answertype;
   private Vector<Map<String, String>> question;
@@ -19,7 +20,7 @@ public class GerbilResponseBuilder {
   private Vector<JSONObject> answers;
 
   /**
-   * Default Constructor to initialize with empty values.
+   * Default constructor for an empty response builder.
    */
   public GerbilResponseBuilder() {
     this.id = new String();
@@ -35,10 +36,10 @@ public class GerbilResponseBuilder {
   }
 
   /**
-   * Set the question for a GerbilResponseBuilder.
-   * @param q Question Object.
-   * @param lang Language of the question.
-   * @return GerbilResponseBuilder for the Question.
+   * Setter to construct add a question with a given language.
+   * @param q Question object.
+   * @param lang Language of the the question.
+   * @return Updated response builder.
    */
   public GerbilResponseBuilder setQuestion(final Question q, String lang) {
     Map<String, String> gerbilQuestion = new HashMap<>();
@@ -54,11 +55,11 @@ public class GerbilResponseBuilder {
   }
 
   /**
-   * Set the answer to the question as a QALD JSON.
+   * Setter for the answer vector.
    * @param q Question object.
    */
   public void setAnswerVec(final Question q) {
-    if (!q.getAnswerAsQALDJSON().isEmpty()) {
+    if (q.getAnswerAsQALDJSON() != null && !q.getAnswerAsQALDJSON().isEmpty()) {
       JSONObject json = q.getAnswerAsQALDJSON();
       this.answers.add(json);
     }
@@ -91,8 +92,7 @@ public class GerbilResponseBuilder {
   @Override
   public String toString() {
     return "\n ID :" + id + "\n Answertype: " + answertype + "\n Query: " + Objects.toString(query)
-            + "\n Question: " + question.toString() + "\n Answers: " + Objects.toString(answers);
+        + "\n Question: " + Objects.toString(question) + "\n Answers: " + Objects.toString(answers);
   }
 
 }
-
