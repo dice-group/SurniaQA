@@ -1,5 +1,6 @@
 package de.upb.ds.surnia.queries;
 
+import de.upb.ds.surnia.preprocessing.Token;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -8,21 +9,24 @@ import org.apache.jena.rdf.model.ResourceFactory;
 
 public class QueryParameterReplacer {
 
-  private List<List<String>> phR;
-  private List<List<String>> phO;
   private String[] params;
+  private List<Token> tokens;
+  private List<Token> usedTokens;
   private String queryString;
+  private String exampleQuestion;
+  private HashMap<String, List<String>> possibleReplacements;
 
   /**
    * Create a replacer for all combinations of the query with the question.
-   * @param questionProperties Questions with all possible uris.
+   * @param questionTokens Preprocessing result of the question.
    * @param query Query with the parameters to be replaced.
    */
-  public QueryParameterReplacer(QuestionProperties questionProperties, Query query) {
+  public QueryParameterReplacer(List<Token> questionTokens, String bestExampleQuestion, Query query) {
     queryString = query.sparqlTemplate;
+    tokens = questionTokens;
     params = query.sparqlParams;
-    phR = questionProperties.resources;
-    phO = questionProperties.ontologies;
+    usedTokens = new LinkedList<>();
+    exampleQuestion = bestExampleQuestion;
   }
 
   /**
@@ -44,34 +48,26 @@ public class QueryParameterReplacer {
 
   private List<HashMap<String, String>> generateParameterReplacementCombinations() {
     List<HashMap<String, String>> combinations = new LinkedList<>();
-    int[] counter = new int[phO.size() + phR.size()];
+    possibleReplacements = new HashMap<>();
+    for (String param : params) {
+      List<String> uris = getUrisFromClosestToken(param);
+      possibleReplacements.put(param, uris);
+    }
+    int[] counter = new int[params.length];
     for (int i = 0; i < counter.length; i++) {
       counter[i] = 0;
     }
     while (!isCounterFinished(counter)) {
-      HashMap<String, String> combination = new HashMap<>();
-      for (String param : params) {
-        char type = param.charAt(0);
-        int index = Integer.parseInt(param.substring(1)) - 1;
-        String replacement;
-        if (type == 'R') {
-          replacement = phR.get(index).get(counter[phO.size() + index]);
-        } else {
-          replacement = phO.get(index).get(counter[index]);
-        }
-        combination.put(param, replacement);
-      }
-      if (!combinations.contains(combination)) {
-        combinations.add(combination);
-      }
+      combinations.add(createCombination(counter));
       increaseCounterArray(counter, 0);
     }
+    combinations.add(createCombination(counter));
     return combinations;
   }
 
   private void increaseCounterArray(int[] counter, int i) {
-    int l = i < phO.size() ? phO.get(i).size() : phR.get(i - phO.size()).size();
-    if (counter[i] < l - 1) {
+    int l = possibleReplacements.get(params[i]).size() - 1;
+    if (counter[i] < l) {
       counter[i]++;
     } else if (i < counter.length - 1) {
       counter[i] = 0;
@@ -80,14 +76,69 @@ public class QueryParameterReplacer {
   }
 
   private boolean isCounterFinished(int[] counter) {
-    boolean finished = true;
     for (int i = 0; i < counter.length; i++) {
-      int l = i < phO.size() ? phO.get(i).size() : phR.get(i - phO.size()).size();
-      if (counter[i] < l - 1) {
-        finished = false;
+      if (counter[i] < (possibleReplacements.get(params[i]).size() - 1)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private HashMap<String, String> createCombination (int[] counter) {
+    HashMap<String, String> combination = new HashMap<>();
+    for (int i = 0; i < params.length; i++) {
+      String param = params[i];
+      String uri = possibleReplacements.get(param).get(counter[i]);
+      combination.put(param, uri);
+    }
+    return combination;
+  }
+
+  private List<String> getUrisFromClosestToken(String param) {
+    int p = 0;
+    boolean resourceWanted = param.charAt(0) == 'R';
+    for (String s : exampleQuestion.split(" ")) {
+      p++;
+      if (s.equalsIgnoreCase(param)) {
         break;
       }
     }
-    return finished;
+    for (int d = 0; d < tokens.size(); d++) {
+      int iL = p - d;
+      int iR = p + d;
+      if (iL >= 0 && iL < tokens.size()) {
+        List<String> uris = checkToken(tokens.get(iL), resourceWanted);
+        if (uris != null) {
+          return uris;
+        }
+      }
+      if (iR < tokens.size()) {
+        List<String> uris = checkToken(tokens.get(iR), resourceWanted);
+        if (uris != null) {
+          return uris;
+        }
+      }
+    }
+    return null;
+  }
+
+  private List<String> checkToken (Token token, boolean resourceWanted) {
+    if (!usedTokens.contains(token)) {
+      if (token.getUris() != null) {
+        if (token.getUris().get(0).contains("resource") && resourceWanted) {
+          usedTokens.add(token);
+          return token.getUris();
+        } else if (token.getUris().get(0).contains("ontology") && !resourceWanted) {
+          usedTokens.add(token);
+          return token.getUris();
+        } else {
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
   }
 }

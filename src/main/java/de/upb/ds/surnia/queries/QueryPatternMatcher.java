@@ -48,13 +48,35 @@ public class QueryPatternMatcher {
   }
 
   /**
+   * Find all queries that were rated above the threshold for the given question.
+   *
+   * @param questionTokens Tokens of the question with the analysis of the preprocessing pipeline.
+   * @return A list with all parameterized SPARQL queries with a good rating.
+   */
+  public List<ParameterizedSparqlString> findMatchingQueries(List<Token> questionTokens) {
+    QuestionProperties questionProperties = new QuestionProperties(questionTokens);
+    logger.info(questionProperties.toString());
+    LinkedList<ParameterizedSparqlString> possibleQueries = new LinkedList<>();
+    for (Query query : queries) {
+      String bestExampleQuestion = rateQuery(questionProperties, query);
+      if (bestExampleQuestion != null) {
+        QueryParameterReplacer queryParameterReplacer;
+        queryParameterReplacer = new QueryParameterReplacer(questionTokens, bestExampleQuestion, query);
+        possibleQueries.addAll(queryParameterReplacer.getQueriesWithReplacedParameters());
+      }
+    }
+    logger.info("Query amount: " + possibleQueries.size());
+    return possibleQueries;
+  }
+
+  /**
    * Rate a query according to the properties of the given question.
    *
    * @param questionProperties Analyzed properties of the input question.
    * @param query              A query from the prepared query set.
    * @return A ranking for the query regarding the question between 0 and 1.
    */
-  public String rateQuery(QuestionProperties questionProperties, Query query) {
+  private String rateQuery(QuestionProperties questionProperties, Query query) {
     String questionStartWord = questionProperties.questionStart.toUpperCase();
     if (!Arrays.asList(query.questionStartWord).contains(questionStartWord)) {
       logger.info("Wrong question word");
@@ -77,31 +99,7 @@ public class QueryPatternMatcher {
     for (String exampleQuestions : query.exampleQuestions) {
       String s1 = exampleQuestions;
       String s2 = questionProperties.representationForm;
-      double len = Math.max(s1.length(), s2.length());
-      int[] v0 = new int[s2.length() + 1];
-      int[] v1 = new int[s2.length() + 1];
-      int[] vtemp;
-      for (int i = 0; i < v0.length; i++) {
-        v0[i] = i;
-      }
-
-      for (int i = 0; i < s1.length(); i++) {
-        v1[0] = i + 1;
-        for (int j = 0; j < s2.length(); j++) {
-          int cost = 1;
-          if (s1.charAt(i) == s2.charAt(j)) {
-            cost = 0;
-          }
-          v1[j + 1] = Math.min(
-                  v1[j] + 1,
-                  Math.min(v0[j + 1] + 1, v0[j] + cost));
-        }
-        vtemp = v0;
-        v0 = v1;
-        v1 = vtemp;
-      }
-
-      double similarity = 1.0d - (v0[s2.length()] / len);
+      double similarity = stringSimilarity(s1, s2);
       if (similarity > max) {
         max = similarity;
         question = s1;
@@ -111,30 +109,36 @@ public class QueryPatternMatcher {
       logger.info(question + " - " + questionProperties.representationForm + ": " + max);
       return question;
     } else {
+      logger.info("Similarity too low");
       return null;
     }
   }
 
-  /**
-   * Find all queries that were rated above the threshold for the given question.
-   *
-   * @param questionTokens Tokens of the question with the analysis of the preprocessing pipeline.
-   * @return A list with all parameterized SPARQL queries with a good rating.
-   */
-  public List<ParameterizedSparqlString> findMatchingQueries(List<Token> questionTokens) {
-    QuestionProperties questionProperties = new QuestionProperties(questionTokens);
-    logger.info(questionProperties.toString());
-    LinkedList<ParameterizedSparqlString> possibleQueries = new LinkedList<>();
-    for (Query query : queries) {
-      String bestExampleQuestion = rateQuery(questionProperties, query);
-      if (bestExampleQuestion != null) {
-        QueryParameterReplacer queryParameterReplacer;
-        queryParameterReplacer = new QueryParameterReplacer(questionProperties, query);
-        possibleQueries.addAll(queryParameterReplacer.getQueriesWithReplacedParameters());
-      }
+  private double stringSimilarity(String s1, String s2) {
+    double len = Math.max(s1.length(), s2.length());
+    int[] v0 = new int[s2.length() + 1];
+    int[] v1 = new int[s2.length() + 1];
+    int[] vtemp;
+    for (int i = 0; i < v0.length; i++) {
+      v0[i] = i;
     }
-    logger.info("Query amount: " + possibleQueries.size());
-    return possibleQueries;
+    for (int i = 0; i < s1.length(); i++) {
+      v1[0] = i + 1;
+      for (int j = 0; j < s2.length(); j++) {
+        int cost = 1;
+        if (s1.charAt(i) == s2.charAt(j)) {
+          cost = 0;
+        }
+        v1[j + 1] = Math.min(
+          v1[j] + 1,
+          Math.min(v0[j + 1] + 1, v0[j] + cost));
+      }
+      vtemp = v0;
+      v0 = v1;
+      v1 = vtemp;
+    }
+
+    return 1.0d - (v0[s2.length()] / len);
   }
 
 }

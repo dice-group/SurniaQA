@@ -11,8 +11,7 @@ public class QuestionProperties {
   public String questionStart;
   public int resourceAmount = 0;
   public int ontologyAmount = 0;
-  public List<List<String>> resources;
-  public List<List<String>> ontologies;
+  public List<Token> tokens;
   public String representationForm;
 
   /**
@@ -23,8 +22,7 @@ public class QuestionProperties {
     // Set all properties for the question according to the question tokens
     if (questionTokens.size() > 0) {
       questionStart = questionTokens.get(0).getText();
-      resources = new LinkedList<>();
-      ontologies = new LinkedList<>();
+      tokens = questionTokens;
       LinkedList<String> representationFormElements = new LinkedList<>();
       for (Token token : questionTokens) {
         if (token.getType().equals("JJS") || token.getType().equals("RBS")) {
@@ -32,13 +30,11 @@ public class QuestionProperties {
         }
         if (token.getUris() != null) {
           if (token.getUris().get(0).contains("http://dbpedia.org/resource/")) {
-            resources.add(token.getUris());
             resourceAmount++;
-            representationFormElements.add("R" + resourceAmount);
+            representationFormElements.add("R");
           } else if (token.getUris().get(0).contains("http://dbpedia.org/ontology/")) {
-            ontologies.add(token.getUris());
             ontologyAmount++;
-            representationFormElements.add("O" + ontologyAmount);
+            representationFormElements.add(token.getType());
           }
         } else {
           representationFormElements.add(token.getType());
@@ -55,8 +51,7 @@ public class QuestionProperties {
             + "\tquestionStart='" + questionStart + '\'' + '\n'
             + "\tresourceAmount=" + resourceAmount + '\n'
             + "\tontologyAmount=" + ontologyAmount + '\n'
-            + "\tresources=" + resources + '\n'
-            + "\tontologies=" + ontologies + '\n'
+            + "\ttokens=" + tokens + '\n'
             + "\trepresentationForm='" + representationForm + '\'' + '\n'
             + '}';
   }
