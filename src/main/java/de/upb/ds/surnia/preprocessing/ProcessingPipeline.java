@@ -45,7 +45,7 @@ public class ProcessingPipeline {
   private StanfordCoreNLPClient nlpClient;
   private HttpClient httpClient;
   private HttpPost foxPost;
-  private DBOIndex dboIndex;
+  private PredicateSelector predicateSelector;
 
   // JSON template for a FOX request
   private static final String FOX_REQUEST_PAYLOAD = "{\n"
@@ -62,11 +62,6 @@ public class ProcessingPipeline {
           + "WHERE {?s <http://www.w3.org/2005/11/its/rdf#taIdentRef>  ?entity . "
           + " ?s <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#anchorOf> ?appearance}";
 
-  // POS tags for that OntologyIndex should try to find a matching ontology property
-  private static final List<String> DBO_INDEX_TAGS = Arrays.asList(new String[]{
-      "FW", "JJ", "JJR", "JJS", "NN", "NNS", "RB", "RBR", "RBS", "VB", "VBN", "VBD", "VBG"
-  });
-
   /**
    * Create pipeline with CoreNLP, FOX and OntologyIndex.
    */
@@ -80,8 +75,7 @@ public class ProcessingPipeline {
     httpClient = HttpClientBuilder.create().build();
     foxPost = new HttpPost(FOX_URL);
 
-    // Init OntologyIndex
-    dboIndex = new DBOIndex();
+    predicateSelector = new PredicateSelector();
   }
 
   /**
@@ -94,23 +88,7 @@ public class ProcessingPipeline {
   public List<Token> processQuestion(String question) throws IOException {
     List<Token> tokens = nlp(question);
     tokens = namedEntityExtraction(question, tokens);
-    for (int i = 0; i < tokens.size(); i++) {
-      if (tokens.get(i).getUris() == null && DBO_INDEX_TAGS.contains(tokens.get(i).getType())) {
-        List<String> uris = dboIndex.search(tokens.get(i).getText());
-        if (uris.size() > 0) {
-          Token oldToken = tokens.get(i);
-          Token t = new Token(oldToken.getText(), oldToken.getType(), oldToken.getLemma(), uris);
-          tokens.set(i, t);
-        } else {
-          uris = dboIndex.search(tokens.get(i).getLemma());
-          if (uris.size() > 0) {
-            Token oldToken = tokens.get(i);
-            Token t = new Token(oldToken.getText(), oldToken.getType(), oldToken.getLemma(), uris);
-            tokens.set(i, t);
-          }
-        }
-      }
-    }
+    tokens = predicateSelector.addPredicates(tokens);
     return tokens;
   }
 
