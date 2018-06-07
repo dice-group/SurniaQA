@@ -178,3 +178,4 @@ typings/
 
 # dotenv environment
 .env
+*.iml
