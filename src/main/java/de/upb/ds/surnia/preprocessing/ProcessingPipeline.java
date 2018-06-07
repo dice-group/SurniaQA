@@ -1,25 +1,15 @@
 package de.upb.ds.surnia.preprocessing;
 
-import edu.stanford.nlp.ling.CoreAnnotations.LemmaAnnotation;
-import edu.stanford.nlp.ling.CoreAnnotations.PartOfSpeechAnnotation;
-import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
-import edu.stanford.nlp.ling.CoreAnnotations.TextAnnotation;
-import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
-import edu.stanford.nlp.ling.CoreLabel;
-import edu.stanford.nlp.pipeline.Annotation;
-import edu.stanford.nlp.pipeline.StanfordCoreNLPClient;
-import edu.stanford.nlp.util.CoreMap;
+import de.upb.ds.surnia.preprocessing.tasks.StanfordNERTask;
+import de.upb.ds.surnia.preprocessing.tasks.TaskInterface;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Properties;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QuerySolution;
@@ -33,8 +23,6 @@ import org.slf4j.LoggerFactory;
 public class ProcessingPipeline {
 
   // Configuration variables for the connection to CoreNLP and FOX
-  private static final String CORE_NLP_URL = "http://139.18.2.39";
-  private static final int CORE_NLP_PORT = 9000;
   private static final String FOX_URL = "http://fox.cs.uni-paderborn.de:4444/fox";
   // JSON template for a FOX request
   private static final String FOX_REQUEST_PAYLOAD = "{\n"
@@ -50,27 +38,22 @@ public class ProcessingPipeline {
     + "WHERE {?s <http://www.w3.org/2005/11/its/rdf#taIdentRef>  ?entity . "
     + " ?s <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#anchorOf> ?appearance}";
   final Logger logger = LoggerFactory.getLogger(ProcessingPipeline.class);
-  // Interfaces for the interaction with the preprocessors
-  private StanfordCoreNLPClient nlpClient;
-  private HttpClient httpClient;
-  private HttpPost foxPost;
-  private PredicateSelector predicateSelector;
+
+  private List<TaskInterface> taskPipeline;
+
+
+  public ProcessingPipeline(){
+    this.taskPipeline = new ArrayList<>();
+    taskPipeline.add(new StanfordNERTask());
+  }
 
   /**
-   * Create pipeline with CoreNLP, FOX and OntologyIndex.
+   * Create pipeline with given tasks. The first task has to split the text up into its components!
    */
-  public ProcessingPipeline() {
-    // Init CoreNLP client
-    Properties nlpProperties = new Properties();
-    nlpProperties.setProperty("annotators", "tokenize, ssplit, pos, lemma");
-    nlpClient = new StanfordCoreNLPClient(nlpProperties, CORE_NLP_URL, CORE_NLP_PORT, 1);
-
-    // Init FOX client
-    httpClient = HttpClientBuilder.create().build();
-    foxPost = new HttpPost(FOX_URL);
-
-    predicateSelector = new PredicateSelector();
+  public ProcessingPipeline(List<TaskInterface> taskPipeline) {
+    this.taskPipeline = new ArrayList<>(taskPipeline);
   }
+
 
   /**
    * Processes a question into a List of tokens.
@@ -79,58 +62,33 @@ public class ProcessingPipeline {
    * @return List of tokens extracted from the input question.
    * @throws IOException Error while performing Named Entity Recognition.
    */
-  public List<Token> processQuestion(String question) throws IOException {
-    List<Token> tokens = nlp(question);
-    tokens = namedEntityExtraction(question, tokens);
-    tokens = predicateSelector.addPredicates(tokens);
-    return tokens;
-  }
-
-  /**
-   * Performs POS tagging on text when the text contains only one sentence.
-   *
-   * @param input Input text.
-   * @return List of tokens from the input sentence.
-   */
-  private List<Token> nlp(String input) {
-    LinkedList<Token> tokens = new LinkedList<>();
-    Annotation annotations = new Annotation(input);
-    nlpClient.annotate(annotations);
-    List<CoreMap> sentences = annotations.get(SentencesAnnotation.class);
-    if (sentences.size() != 1) {
-      logger.error("Input contains more than one sentence!");
-    } else {
-      for (CoreMap sentence : sentences) {
-        for (CoreLabel token : sentence.get(TokensAnnotation.class)) {
-          String text = token.get(TextAnnotation.class);
-          String pos = token.get(PartOfSpeechAnnotation.class);
-          String lemma = token.get(LemmaAnnotation.class);
-          tokens.add(new Token(text, pos, lemma));
-        }
-      }
+  public List<Token> processQuestion(String question) {
+    List<Token> tokens = new ArrayList<>();
+    for(TaskInterface task : taskPipeline){
+      tokens = task.processTokens(question, tokens);
     }
     return tokens;
   }
 
-  private List<Token> namedEntityExtraction(String input, List<Token> tokens) throws IOException {
-    String query = FOX_REQUEST_PAYLOAD.replace("$INPUT$", input);
-    foxPost.setEntity(new StringEntity(query, ContentType.APPLICATION_JSON));
-    HttpResponse response = httpClient.execute(foxPost);
-    Model model = ModelFactory.createDefaultModel();
-    model.read(response.getEntity().getContent(), null, "TURTLE");
-    try (QueryExecution qexec = QueryExecutionFactory.create(FOX_RESULT_SPARQL_QUERY, model)) {
-      ResultSet results = qexec.execSelect();
-      while (results.hasNext()) {
-        QuerySolution solution = results.nextSolution();
-        String appearance = solution.get("appearance").asLiteral().getString();
-        String resource = solution.get("entity").asResource().getURI();
-        List<String> uri = new LinkedList<>();
-        uri.add(resource);
-        tokens = linkUri(tokens, appearance, uri);
-      }
-    }
-    return tokens;
-  }
+//  private List<Token> namedEntityExtraction(String input, List<Token> tokens) throws IOException {
+//    String query = FOX_REQUEST_PAYLOAD.replace("$INPUT$", input);
+//    foxPost.setEntity(new StringEntity(query, ContentType.APPLICATION_JSON));
+//    HttpResponse response = httpClient.execute(foxPost);
+//    Model model = ModelFactory.createDefaultModel();
+//    model.read(response.getEntity().getContent(), null, "TURTLE");
+//    try (QueryExecution qexec = QueryExecutionFactory.create(FOX_RESULT_SPARQL_QUERY, model)) {
+//      ResultSet results = qexec.execSelect();
+//      while (results.hasNext()) {
+//        QuerySolution solution = results.nextSolution();
+//        String appearance = solution.get("appearance").asLiteral().getString();
+//        String resource = solution.get("entity").asResource().getURI();
+//        List<String> uri = new LinkedList<>();
+//        uri.add(resource);
+//        tokens = linkUri(tokens, appearance, uri);
+//      }
+//    }
+//    return tokens;
+//  }
 
   /**
    * Combine tokens that can be linked to a DBpedia resource.
