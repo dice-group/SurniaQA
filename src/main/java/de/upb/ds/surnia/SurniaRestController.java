@@ -22,6 +22,7 @@ public class SurniaRestController {
 
   /**
    * Endpoint for answering a question with a QALD JSON.
+   *
    * @param params Params containing the question and the language.
    * @param response Response object.
    * @return Answer to the question as a QALD JSON.

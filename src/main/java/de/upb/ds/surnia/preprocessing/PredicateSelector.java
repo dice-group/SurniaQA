@@ -15,16 +15,14 @@ import org.slf4j.LoggerFactory;
 
 public class PredicateSelector {
 
-  final Logger logger = LoggerFactory.getLogger(PredicateSelector.class);
-
   // POS tags for that OntologyIndex should try to find a matching ontology property
   private static final List<String> DBO_INDEX_TAGS = Arrays.asList(new String[]{
-      "FW", "JJ", "JJR", "JJS", "NN", "NNS", "RB", "RBR", "RBS", "VB", "VBN", "VBD", "VBG"
+    "FW", "JJ", "JJR", "JJS", "NN", "NNS", "RB", "RBR", "RBS", "VB", "VBN", "VBD", "VBG"
   });
   private static final int MAX_PREDICATE_AMOUNT = 5;
   private static final String PREDICATE_FREQUENCY_QUERY =
-      "SELECT (COUNT(DISTINCT ?x) AS ?n) WHERE {?x ?p ?y . }";
-
+    "SELECT (COUNT(DISTINCT ?x) AS ?n) WHERE {?x ?p ?y . }";
+  final Logger logger = LoggerFactory.getLogger(PredicateSelector.class);
   private DBOIndex dboIndex;
   private HashMap<String, Integer> predicateFrequency;
 
@@ -36,6 +34,7 @@ public class PredicateSelector {
 
   /**
    * Adds the best predicate look up results from the DBpedia Ontology.
+   *
    * @param tokens Token to do the look up for.
    * @return Token with added predicate URIs if appropriate.
    */
@@ -105,7 +104,8 @@ public class PredicateSelector {
     } else {
       ParameterizedSparqlString query = new ParameterizedSparqlString(PREDICATE_FREQUENCY_QUERY);
       query.setParam("?p", ResourceFactory.createResource(uri));
-      QueryExecution execution = QueryExecutionFactory.sparqlService("http://dbpedia.org/sparql", query.asQuery());
+      QueryExecution execution = QueryExecutionFactory
+        .sparqlService("http://dbpedia.org/sparql", query.asQuery());
       QuerySolution solution = execution.execSelect().next();
       f = solution.getLiteral("?n").getInt();
       predicateFrequency.put(uri, f);

@@ -15,6 +15,7 @@ public class QuestionProperties {
 
   /**
    * Extract properties from a question.
+   *
    * @param questionTokens All tokens of the given question.
    */
   public QuestionProperties(List<Token> questionTokens) {
@@ -46,12 +47,12 @@ public class QuestionProperties {
   @Override
   public String toString() {
     return "QuestionProperties{\n"
-            + "\tcontainsSuperlative=" + containsSuperlative + '\n'
-            + "\tquestionStart='" + questionStart + '\'' + '\n'
-            + "\tresourceAmount=" + resourceAmount + '\n'
-            + "\tontologyAmount=" + ontologyAmount + '\n'
-            + "\ttokens=" + tokens + '\n'
-            + "\trepresentationForm='" + representationForm + '\'' + '\n'
-            + '}';
+      + "\tcontainsSuperlative=" + containsSuperlative + '\n'
+      + "\tquestionStart='" + questionStart + '\'' + '\n'
+      + "\tresourceAmount=" + resourceAmount + '\n'
+      + "\tontologyAmount=" + ontologyAmount + '\n'
+      + "\ttokens=" + tokens + '\n'
+      + "\trepresentationForm='" + representationForm + '\'' + '\n'
+      + '}';
   }
 }

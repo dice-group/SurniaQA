@@ -15,14 +15,13 @@ import org.slf4j.LoggerFactory;
 
 public class QueryPatternMatcher {
 
-  static final Logger logger = LoggerFactory.getLogger(QueryPatternMatcher.class);
-
   public static final float QUERY_RANKING_THRESHOlD = 0.5f;
-
+  static final Logger logger = LoggerFactory.getLogger(QueryPatternMatcher.class);
   private List<Query> queries;
 
   /**
    * Parses all queries from a given file.
+   *
    * @param fileName Name of the query file.
    */
   public QueryPatternMatcher(String fileName) {
@@ -61,7 +60,8 @@ public class QueryPatternMatcher {
       String bestExampleQuestion = rateQuery(questionProperties, query);
       if (bestExampleQuestion != null) {
         QueryParameterReplacer queryParameterReplacer;
-        queryParameterReplacer = new QueryParameterReplacer(questionTokens, bestExampleQuestion, query);
+        queryParameterReplacer = new QueryParameterReplacer(questionTokens, bestExampleQuestion,
+          query);
         possibleQueries.addAll(queryParameterReplacer.getQueriesWithReplacedParameters());
       }
     }
@@ -73,7 +73,7 @@ public class QueryPatternMatcher {
    * Rate a query according to the properties of the given question.
    *
    * @param questionProperties Analyzed properties of the input question.
-   * @param query              A query from the prepared query set.
+   * @param query A query from the prepared query set.
    * @return A ranking for the query regarding the question between 0 and 1.
    */
   private String rateQuery(QuestionProperties questionProperties, Query query) {

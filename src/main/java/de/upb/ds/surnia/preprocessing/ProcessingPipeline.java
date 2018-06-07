@@ -32,33 +32,29 @@ import org.slf4j.LoggerFactory;
 
 public class ProcessingPipeline {
 
-  final Logger logger = LoggerFactory.getLogger(ProcessingPipeline.class);
-
   // Configuration variables for the connection to CoreNLP and FOX
   private static final String CORE_NLP_URL = "http://139.18.2.39";
   private static final int CORE_NLP_PORT = 9000;
   private static final String FOX_URL = "http://fox.cs.uni-paderborn.de:4444/fox";
-
+  // JSON template for a FOX request
+  private static final String FOX_REQUEST_PAYLOAD = "{\n"
+    + "\"input\" : \"$INPUT$\",\n"
+    + "\"type\": \"text\",\n"
+    + "\"task\": \"ner\",\n"
+    + "\"output\": \"turtle\",\n"
+    + "\"lang\": \"en\",\n"
+    + "\"foxlight\":\"org.aksw.fox.tools.ner.en.IllinoisExtendedEN\"\n"
+    + "}";
+  // SPARQL query to get the NER results from a FOX request
+  private static final String FOX_RESULT_SPARQL_QUERY = "SELECT ?entity ?appearance "
+    + "WHERE {?s <http://www.w3.org/2005/11/its/rdf#taIdentRef>  ?entity . "
+    + " ?s <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#anchorOf> ?appearance}";
+  final Logger logger = LoggerFactory.getLogger(ProcessingPipeline.class);
   // Interfaces for the interaction with the preprocessors
   private StanfordCoreNLPClient nlpClient;
   private HttpClient httpClient;
   private HttpPost foxPost;
   private PredicateSelector predicateSelector;
-
-  // JSON template for a FOX request
-  private static final String FOX_REQUEST_PAYLOAD = "{\n"
-          + "\"input\" : \"$INPUT$\",\n"
-          + "\"type\": \"text\",\n"
-          + "\"task\": \"ner\",\n"
-          + "\"output\": \"turtle\",\n"
-          + "\"lang\": \"en\",\n"
-          + "\"foxlight\":\"org.aksw.fox.tools.ner.en.IllinoisExtendedEN\"\n"
-          + "}";
-
-  // SPARQL query to get the NER results from a FOX request
-  private static final String FOX_RESULT_SPARQL_QUERY = "SELECT ?entity ?appearance "
-          + "WHERE {?s <http://www.w3.org/2005/11/its/rdf#taIdentRef>  ?entity . "
-          + " ?s <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#anchorOf> ?appearance}";
 
   /**
    * Create pipeline with CoreNLP, FOX and OntologyIndex.
@@ -139,9 +135,9 @@ public class ProcessingPipeline {
   /**
    * Combine tokens that can be linked to a DBpedia resource.
    *
-   * @param tokens     List of tokens.
+   * @param tokens List of tokens.
    * @param appearance String appearance of the found resource.
-   * @param uris       DBpedia URI of the found resource.
+   * @param uris DBpedia URI of the found resource.
    * @return List of tokens where the resource tokens are combined and linked.
    */
   private List<Token> linkUri(List<Token> tokens, String appearance, List<String> uris) {

@@ -147,7 +147,8 @@ public class QuestionAnswerer extends AbstractQuestionAnswerer {
   private Set<RDFNode> selectQueryDBpedia(ParameterizedSparqlString queryString) {
     String queryStringRepresentation = queryString.toString();
     logger.info("Query DBpedia with: " + queryStringRepresentation);
-    QueryExecution execution = QueryExecutionFactory.sparqlService("http://dbpedia.org/sparql", queryString.asQuery());
+    QueryExecution execution = QueryExecutionFactory
+      .sparqlService("http://dbpedia.org/sparql", queryString.asQuery());
     ResultSet resultSet = execution.execSelect();
     List<Var> projectVars = queryString.asQuery().getProjectVars();
     String projectionVar;
@@ -174,7 +175,8 @@ public class QuestionAnswerer extends AbstractQuestionAnswerer {
   private boolean askQueryDBpedia(ParameterizedSparqlString queryString) {
     String queryStringRepresentation = queryString.toString();
     logger.info("Query DBpedia with: " + queryStringRepresentation);
-    QueryExecution execution = QueryExecutionFactory.sparqlService("http://dbpedia.org/sparql", queryString.asQuery());
+    QueryExecution execution = QueryExecutionFactory
+      .sparqlService("http://dbpedia.org/sparql", queryString.asQuery());
     boolean result = execution.execAsk();
     logger.info("Result: " + result);
     return result;

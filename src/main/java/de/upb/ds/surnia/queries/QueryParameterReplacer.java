@@ -18,10 +18,12 @@ public class QueryParameterReplacer {
 
   /**
    * Create a replacer for all combinations of the query with the question.
+   *
    * @param questionTokens Preprocessing result of the question.
    * @param query Query with the parameters to be replaced.
    */
-  public QueryParameterReplacer(List<Token> questionTokens, String bestExampleQuestion, Query query) {
+  public QueryParameterReplacer(List<Token> questionTokens, String bestExampleQuestion,
+    Query query) {
     queryString = query.sparqlTemplate;
     tokens = questionTokens;
     params = query.sparqlParams;
@@ -31,6 +33,7 @@ public class QueryParameterReplacer {
 
   /**
    * Generate all replacement combinations.
+   *
    * @return All possible query replacements.
    */
   public List<ParameterizedSparqlString> getQueriesWithReplacedParameters() {
@@ -84,7 +87,7 @@ public class QueryParameterReplacer {
     return true;
   }
 
-  private HashMap<String, String> createCombination (int[] counter) {
+  private HashMap<String, String> createCombination(int[] counter) {
     HashMap<String, String> combination = new HashMap<>();
     for (int i = 0; i < params.length; i++) {
       String param = params[i];
@@ -122,7 +125,7 @@ public class QueryParameterReplacer {
     return null;
   }
 
-  private List<String> checkToken (Token token, boolean resourceWanted) {
+  private List<String> checkToken(Token token, boolean resourceWanted) {
     if (!usedTokens.contains(token)) {
       if (token.getUris() != null) {
         if (token.getUris().get(0).contains("resource") && resourceWanted) {

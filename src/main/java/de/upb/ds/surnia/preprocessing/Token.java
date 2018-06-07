@@ -24,6 +24,7 @@ public class Token {
 
   /**
    * Constructor with all properties.
+   *
    * @param text Surface string of the token.
    * @param type POS type of the token.
    * @param lemma Lemma of the token.

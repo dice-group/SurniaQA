@@ -14,13 +14,12 @@ import org.json.simple.parser.ParseException;
 
 /**
  * An abstract layer for the qa system.
- *
  */
 public abstract class AbstractQuestionAnswerer {
 
   @SuppressWarnings("unchecked")
   private JSONObject getAnswersAsQald(Set<String> answers, AnswerType answerType)
-      throws IOException, ParseException {
+    throws IOException, ParseException {
 
     String varName = answerType.toString().toLowerCase();
     JSONObject answerJson = new JSONObject();
@@ -97,6 +96,7 @@ public abstract class AbstractQuestionAnswerer {
 
   /**
    * Create a JSON Object from the question answers.
+   *
    * @param q Question object with the answers.
    * @param lang Language of the answered question.
    * @return JSON Object representing the answers.
@@ -133,10 +133,8 @@ public abstract class AbstractQuestionAnswerer {
   }
 
   /**
-   * Retrieves the Answers from the System for a particular question and its
-   * language. <br/>
-   * It has to set the answers as a set, the answer types and the sparql query
-   * used
+   * Retrieves the Answers from the System for a particular question and its language. <br/> It has
+   * to set the answers as a set, the answer types and the sparql query used
    *
    * @param question String form of the question.
    * @param lang Language of the question.
