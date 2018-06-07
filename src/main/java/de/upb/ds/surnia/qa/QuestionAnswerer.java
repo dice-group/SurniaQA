@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 public class QuestionAnswerer extends AbstractQuestionAnswerer {
 
-  static final Logger logger = LoggerFactory.getLogger(QuestionAnswerer.class);
+  private static final Logger logger = LoggerFactory.getLogger(QuestionAnswerer.class);
 
   private ProcessingPipeline preprocessingPipeline;
   private QueryPatternMatcher queryPatternMatcher;
