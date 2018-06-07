@@ -34,11 +34,7 @@ public class QuestionAnswerer extends AbstractQuestionAnswerer {
   public AnswerContainer retrieveAnswers(String question, String lang) {
     // Analyze question with CoreNLP, FOX and OntologyIndex
     List<Token> tokens = null;
-    try {
       tokens = preprocessingPipeline.processQuestion(question);
-    } catch (IOException e) {
-      logger.error("Error while processing question", e);
-    }
 
     // Get a list with all queries rated above the threshold for the question and query DBpedia
     List<ParameterizedSparqlString> queries = queryPatternMatcher.findMatchingQueries(tokens);
