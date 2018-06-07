@@ -1,12 +1,11 @@
 package de.upb.ds.surnia.gerbil;
 
-import org.aksw.qa.commons.datastructure.Question;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.aksw.qa.commons.datastructure.Question;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GerbilFinalResponse {
   private Logger log = LoggerFactory.getLogger(GerbilFinalResponse.class);

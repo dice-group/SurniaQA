@@ -3,16 +3,15 @@ package de.upb.ds.surnia.queries;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.upb.ds.surnia.preprocessing.Token;
-import org.apache.jena.query.ParameterizedSparqlString;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import org.apache.jena.query.ParameterizedSparqlString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class QueryPatternMatcher {
 

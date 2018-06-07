@@ -4,16 +4,19 @@ import de.upb.ds.surnia.preprocessing.ProcessingPipeline;
 import de.upb.ds.surnia.preprocessing.Token;
 import de.upb.ds.surnia.qa.AnswerContainer.AnswerType;
 import de.upb.ds.surnia.queries.QueryPatternMatcher;
-import org.apache.jena.query.*;
-import org.apache.jena.rdf.model.RDFNode;
-import org.apache.jena.sparql.core.Var;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.jena.query.ParameterizedSparqlString;
+import org.apache.jena.query.QueryExecution;
+import org.apache.jena.query.QueryExecutionFactory;
+import org.apache.jena.query.QuerySolution;
+import org.apache.jena.query.ResultSet;
+import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.sparql.core.Var;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class QuestionAnswerer extends AbstractQuestionAnswerer {
 
