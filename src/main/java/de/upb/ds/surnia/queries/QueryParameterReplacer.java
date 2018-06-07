@@ -1,11 +1,12 @@
 package de.upb.ds.surnia.queries;
 
 import de.upb.ds.surnia.preprocessing.Token;
+import org.apache.jena.query.ParameterizedSparqlString;
+import org.apache.jena.rdf.model.ResourceFactory;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.jena.query.ParameterizedSparqlString;
-import org.apache.jena.rdf.model.ResourceFactory;
 
 public class QueryParameterReplacer {
 
