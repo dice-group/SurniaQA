@@ -50,11 +50,15 @@ public class Token {
   }
 
   public void addUris(List<String> uris) {
-    possibleTokenUris.addAll(uris);
+    for(String uri : uris) {
+      addUri(uri);
+    }
   }
 
   public void addUri(String uri){
-    possibleTokenUris.add(uri);
+    if(!possibleTokenUris.contains(uri)) {
+      possibleTokenUris.add(uri);
+    }
   }
 
   public List<String> getUris() {
