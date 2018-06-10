@@ -49,6 +49,14 @@ public class Token {
     return tokenLemma;
   }
 
+  public void addUris(List<String> uris) {
+    possibleTokenUris.addAll(uris);
+  }
+
+  public void addUri(String uri){
+    possibleTokenUris.add(uri);
+  }
+
   public List<String> getUris() {
     return possibleTokenUris;
   }
