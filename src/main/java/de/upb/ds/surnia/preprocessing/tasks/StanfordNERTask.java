@@ -43,10 +43,4 @@ public class StanfordNERTask implements TaskInterface {
     }
     return tokens;
   }
-
-  public static void main(String[] args) {
-    StanfordNERTask task = new StanfordNERTask();
-    System.out.println(
-      task.processTokens("Dies ist die Geschichte einer langen Reise.", new ArrayList<>()));
-  }
 }
