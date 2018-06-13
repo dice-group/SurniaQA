@@ -1,5 +1,6 @@
 package de.upb.ds.surnia.preprocessing;
 
+import de.upb.ds.surnia.preprocessing.model.Token;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;

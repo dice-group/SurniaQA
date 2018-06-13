@@ -2,7 +2,7 @@ package de.upb.ds.surnia.preprocessing.tasks;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.upb.ds.surnia.preprocessing.Token;
+import de.upb.ds.surnia.preprocessing.model.Token;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

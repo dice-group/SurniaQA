@@ -1,7 +1,7 @@
 package de.upb.ds.surnia.qa;
 
 import de.upb.ds.surnia.preprocessing.ProcessingPipeline;
-import de.upb.ds.surnia.preprocessing.Token;
+import de.upb.ds.surnia.preprocessing.model.Token;
 import de.upb.ds.surnia.qa.AnswerContainer.AnswerType;
 import de.upb.ds.surnia.queries.QueryPatternMatcher;
 import java.io.IOException;

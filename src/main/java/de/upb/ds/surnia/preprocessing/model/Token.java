@@ -1,4 +1,4 @@
-package de.upb.ds.surnia.preprocessing;
+package de.upb.ds.surnia.preprocessing.model;
 
 import java.util.List;
 

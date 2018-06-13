@@ -2,7 +2,7 @@ package de.upb.ds.surnia.queries;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.upb.ds.surnia.preprocessing.Token;
+import de.upb.ds.surnia.preprocessing.model.Token;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;

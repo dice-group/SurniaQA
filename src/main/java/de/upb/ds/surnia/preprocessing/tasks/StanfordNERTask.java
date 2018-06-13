@@ -1,6 +1,6 @@
 package de.upb.ds.surnia.preprocessing.tasks;
 
-import de.upb.ds.surnia.preprocessing.Token;
+import de.upb.ds.surnia.preprocessing.model.Token;
 import edu.stanford.nlp.ling.CoreAnnotations.LemmaAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.PartOfSpeechAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;

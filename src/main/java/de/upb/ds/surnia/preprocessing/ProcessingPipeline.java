@@ -1,5 +1,6 @@
 package de.upb.ds.surnia.preprocessing;
 
+import de.upb.ds.surnia.preprocessing.model.Token;
 import de.upb.ds.surnia.preprocessing.tasks.StanfordNERTask;
 import de.upb.ds.surnia.preprocessing.tasks.TaskInterface;
 import java.io.IOException;
