@@ -4,9 +4,9 @@ import java.util.List;
 
 public class Token {
 
-  private String tokenText;
-  private String tokenType;
-  private String tokenLemma;
+  private String text;
+  private String type;
+  private String lemma;
   private List<String> possibleTokenUris;
 
 
@@ -31,28 +31,28 @@ public class Token {
    * @param uris Possible ontology uris of the token.
    */
   public Token(String text, String type, String lemma, List<String> uris) {
-    tokenText = text;
-    tokenType = type;
-    tokenLemma = lemma;
+    this.text = text;
+    this.type = type;
+    this.lemma = lemma;
     possibleTokenUris = uris;
   }
 
   public String getText() {
-    return tokenText;
+    return text;
   }
 
   public String getType() {
-    return tokenType;
+    return type;
   }
 
   public String getLemma() {
-    return tokenLemma;
   }
 
   public void addUris(List<String> uris) {
     for(String uri : uris) {
       addUri(uri);
     }
+    return lemma;
   }
 
   public void addUri(String uri){
@@ -67,7 +67,11 @@ public class Token {
 
   @Override
   public String toString() {
-    String uris = (possibleTokenUris != null ? (" - " + possibleTokenUris) : "");
-    return tokenText + "(" + tokenLemma + " - " + tokenType + uris + ")";
+    return "Token{" +
+      "text='" + text + '\'' +
+      ", type='" + type + '\'' +
+      ", lemma='" + lemma + '\'' +
+      ", possibleTokenUris=" + possibleTokenUris +
+      '}';
   }
 }
