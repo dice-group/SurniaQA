@@ -1,5 +1,6 @@
 package de.upb.ds.surnia.preprocessing.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Token {
@@ -11,11 +12,11 @@ public class Token {
 
 
   public Token(String text, String type) {
-    this(text, type, null, null);
+    this(text, type, null, new ArrayList<>());
   }
 
   public Token(String text, String type, String lemma) {
-    this(text, type, lemma, null);
+    this(text, type, lemma, new ArrayList<>());
   }
 
   public Token(String text, String type, List<String> uris) {
@@ -37,21 +38,27 @@ public class Token {
     possibleTokenUris = uris;
   }
 
+  public void setText(String text) {
+    this.text = text;
+  }
+
   public String getText() {
     return text;
+  }
+
+  public void setType(String type) {
+    this.type = type;
   }
 
   public String getType() {
     return type;
   }
 
-  public String getLemma() {
+  public void setLemma(String lemma) {
+    this.lemma = lemma;
   }
 
-  public void addUris(List<String> uris) {
-    for(String uri : uris) {
-      addUri(uri);
-    }
+  public String getLemma() {
     return lemma;
   }
 
@@ -60,6 +67,13 @@ public class Token {
       possibleTokenUris.add(uri);
     }
   }
+
+  public void addUris(List<String> uris) {
+    for(String uri : uris) {
+      addUri(uri);
+    }
+  }
+
 
   public List<String> getUris() {
     return possibleTokenUris;
