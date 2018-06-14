@@ -67,15 +67,11 @@ public class Token {
   }
 
   public void addUri(String uri){
-    if(!possibleTokenUris.contains(uri)) {
       possibleTokenUris.add(uri);
-    }
   }
 
   public void addUris(Set<String> uris) {
-    for(String uri : uris) {
-      addUri(uri);
-    }
+    possibleTokenUris.addAll(uris);
   }
 
 
