@@ -1,25 +1,29 @@
 package de.upb.ds.surnia.preprocessing.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 public class Token {
 
   private String text;
   private String type;
   private String lemma;
-  private List<String> possibleTokenUris;
+  private Set<String> possibleTokenUris;
 
+  public Token(String text) {
+    this(text, null, null, new HashSet<>());
+  }
 
   public Token(String text, String type) {
-    this(text, type, null, new ArrayList<>());
+    this(text, type, null, new HashSet<>());
   }
 
   public Token(String text, String type, String lemma) {
-    this(text, type, lemma, new ArrayList<>());
+    this(text, type, lemma, new HashSet<>());
   }
 
-  public Token(String text, String type, List<String> uris) {
+  public Token(String text, String type, Set<String> uris) {
     this(text, type, null, uris);
   }
 
@@ -31,7 +35,7 @@ public class Token {
    * @param lemma Lemma of the token.
    * @param uris Possible ontology uris of the token.
    */
-  public Token(String text, String type, String lemma, List<String> uris) {
+  public Token(String text, String type, String lemma, Set<String> uris) {
     this.text = text;
     this.type = type;
     this.lemma = lemma;
@@ -68,14 +72,14 @@ public class Token {
     }
   }
 
-  public void addUris(List<String> uris) {
+  public void addUris(Set<String> uris) {
     for(String uri : uris) {
       addUri(uri);
     }
   }
 
 
-  public List<String> getUris() {
+  public Set<String> getUris() {
     return possibleTokenUris;
   }
 
