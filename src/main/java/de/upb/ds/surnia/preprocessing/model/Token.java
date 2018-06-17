@@ -12,11 +12,11 @@ public class Token {
   private Set<String> possibleTokenUris;
 
   public Token(String text) {
-    this(text, null, null, new HashSet<>());
+    this(text, null);
   }
 
   public Token(String text, String type) {
-    this(text, type, null, new HashSet<>());
+    this(text, type, text.toLowerCase());
   }
 
   public Token(String text, String type, String lemma) {
@@ -24,7 +24,7 @@ public class Token {
   }
 
   public Token(String text, String type, Set<String> uris) {
-    this(text, type, null, uris);
+    this(text, type, text.toLowerCase(), uris);
   }
 
   /**
