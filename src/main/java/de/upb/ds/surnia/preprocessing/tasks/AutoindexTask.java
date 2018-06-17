@@ -24,7 +24,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 public class AutoindexTask implements TaskInterface {
 
-  private static final String DEFAULT_URL = "localhost:9091/search";
+  private static final String DEFAULT_URL = "http://localhost:9091/search";
   private static final Logger log = LoggerFactory.getLogger(AutoindexTask.class);
 
   private UriComponentsBuilder builder;
