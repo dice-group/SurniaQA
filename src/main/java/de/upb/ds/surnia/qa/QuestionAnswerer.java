@@ -4,7 +4,6 @@ import de.upb.ds.surnia.preprocessing.ProcessingPipeline;
 import de.upb.ds.surnia.preprocessing.model.Token;
 import de.upb.ds.surnia.qa.AnswerContainer.AnswerType;
 import de.upb.ds.surnia.queries.QueryPatternMatcher;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -34,7 +33,7 @@ public class QuestionAnswerer extends AbstractQuestionAnswerer {
   public AnswerContainer retrieveAnswers(String question, String lang) {
     // Analyze question with CoreNLP, FOX and OntologyIndex
     List<Token> tokens = null;
-      tokens = preprocessingPipeline.processQuestion(question);
+    tokens = preprocessingPipeline.processQuestion(question);
 
     // Get a list with all queries rated above the threshold for the question and query DBpedia
     List<ParameterizedSparqlString> queries = queryPatternMatcher.findMatchingQueries(tokens);
