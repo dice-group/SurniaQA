@@ -19,30 +19,33 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-public class AutoindexTask extends AbstractRestTask {
+public class AutoindexTask implements TaskInterface {
 
   private static final String DEFAULT_URL = "localhost:9091/search";
   private static final Logger log = LoggerFactory.getLogger(AutoindexTask.class);
 
+  private UriComponentsBuilder builder;
+  private HttpMethod httpMethod;
+
   public AutoindexTask() {
-    super(DEFAULT_URL, HttpMethod.POST);
+    this(DEFAULT_URL);
   }
 
   public AutoindexTask(String url) {
-    super(url, HttpMethod.POST);
+    this.builder = UriComponentsBuilder.fromHttpUrl(url);
+    this.httpMethod = HttpMethod.POST;
   }
 
-  @Override
-  protected UriComponentsBuilder addParameters(String request, UriComponentsBuilder builder) {
+  private UriComponentsBuilder addParameters(String request, UriComponentsBuilder builder) {
     return builder.queryParam("type", "LABEL")
       .queryParam("category", "ALL")
       .queryParam("query", request);
   }
 
-  @Override
-  protected HttpHeaders setHeaders() {
+  private HttpHeaders setHeaders() {
     HttpHeaders headers = new HttpHeaders();
     headers.set("Content-Type", MediaType.APPLICATION_JSON_VALUE);
     return headers;
@@ -62,7 +65,7 @@ public class AutoindexTask extends AbstractRestTask {
    *
    * @param nGramHierarchy n-gram hierarchy, for which the candidates should be found
    */
-  public List<Token> getCandidateMapping(
+  private List<Token> getCandidateMapping(
     NGramHierarchy nGramHierarchy) {
     Map<NGramEntryPosition, Set<String>> candidateMap = new HashMap<>();
 
@@ -95,7 +98,7 @@ public class AutoindexTask extends AbstractRestTask {
   }
 
   private Set<String> askAutoindex(String nGram) {
-    HttpEntity<String> response = getRestReponse(nGram);
+    HttpEntity<String> response = getRestResponse(nGram);
     ObjectMapper mapper = new ObjectMapper();
     Set<String> uris = new HashSet<>();
     try {
@@ -108,6 +111,19 @@ public class AutoindexTask extends AbstractRestTask {
       log.error("Answer of request is not JSON-formatted!");
     }
     return uris;
+  }
 
+  private HttpEntity<String> getRestResponse(String request) {
+    RestTemplate restTemplate = new RestTemplate();
+    UriComponentsBuilder queryBuilder = addParameters(request, builder);
+    HttpHeaders headers = setHeaders();
+    headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
+    HttpEntity<?> entity = new HttpEntity<>(headers);
+    HttpEntity<String> response = restTemplate.exchange(
+      queryBuilder.toUriString(),
+      HttpMethod.POST,
+      entity,
+      String.class);
+    return response;
   }
 }
