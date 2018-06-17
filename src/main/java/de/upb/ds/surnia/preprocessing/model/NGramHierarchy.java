@@ -17,14 +17,14 @@ public class NGramHierarchy {
   private List<String> nGrams;
 
   /**
-   * Initializes with already split n-gram. The split has to be between the words. E.g. the
-   * orginal n-gram "birthplace bill gates" has to be given as '["birthplace", "bill", "gates"]'.
+   * Initializes with already split n-gram. The split has to be between the words. E.g. the orginal
+   * n-gram "birthplace bill gates" has to be given as '["birthplace", "bill", "gates"]'.
    *
    * @param nGrams already split n-gram
    */
   public NGramHierarchy(String[] nGrams) {
     this.nGrams = new ArrayList<>();
-    for(int i=0; i<nGrams.length;i++) {
+    for (int i = 0; i < nGrams.length; i++) {
       nGrams[i] = nGrams[i].replaceAll("\\p{P}", "");
     }
     Collections.addAll(this.nGrams, nGrams);

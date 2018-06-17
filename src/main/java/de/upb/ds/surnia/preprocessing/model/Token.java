@@ -42,32 +42,32 @@ public class Token {
     possibleTokenUris = uris;
   }
 
-  public void setText(String text) {
-    this.text = text;
-  }
-
   public String getText() {
     return text;
   }
 
-  public void setType(String type) {
-    this.type = type;
+  public void setText(String text) {
+    this.text = text;
   }
 
   public String getType() {
     return type;
   }
 
-  public void setLemma(String lemma) {
-    this.lemma = lemma;
+  public void setType(String type) {
+    this.type = type;
   }
 
   public String getLemma() {
     return lemma;
   }
 
-  public void addUri(String uri){
-      possibleTokenUris.add(uri);
+  public void setLemma(String lemma) {
+    this.lemma = lemma;
+  }
+
+  public void addUri(String uri) {
+    possibleTokenUris.add(uri);
   }
 
   public void addUris(Set<String> uris) {
