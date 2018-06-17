@@ -11,8 +11,11 @@ import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.StringUtils;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +31,7 @@ public class StanfordNERTask implements TaskInterface {
     StanfordCoreNLP nlp = new StanfordCoreNLP(props);
     nlp.annotate(annotation);
     List<CoreMap> sentences = annotation.get(SentencesAnnotation.class);
+    List<Token> stanfordTokens = new ArrayList<>();
     if (sentences.size() != 1) {
       logger.error("Input contains more than one sentence!");
     } else {
@@ -36,10 +40,10 @@ public class StanfordNERTask implements TaskInterface {
           String text = token.get(TextAnnotation.class);
           String pos = token.get(PartOfSpeechAnnotation.class);
           String lemma = token.get(LemmaAnnotation.class);
-          tokens.add(new Token(text, pos, lemma));
+          stanfordTokens.add(new Token(text, pos, lemma));
         }
       }
     }
-    return tokens;
+    return stanfordTokens;
   }
 }
