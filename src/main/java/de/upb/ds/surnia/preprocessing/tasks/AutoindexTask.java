@@ -2,6 +2,7 @@ package de.upb.ds.surnia.preprocessing.tasks;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.upb.ds.surnia.preprocessing.TokenMerger;
 import de.upb.ds.surnia.preprocessing.model.NGramEntryPosition;
 import de.upb.ds.surnia.preprocessing.model.NGramHierarchy;
 import de.upb.ds.surnia.preprocessing.model.Token;
@@ -43,8 +44,12 @@ public class AutoindexTask implements TaskInterface {
   public List<Token> processTokens(String question, List<Token> tokens) {
     NGramHierarchy hierarchy = new NGramHierarchy(question);
     List<Token> autoindexToken = getCandidateMapping(hierarchy);
-    // more magic needs to happen here
-    return tokens;
+    TokenMerger tokenMerger = new TokenMerger();
+    List<Token> finalTokens = new ArrayList<>(tokens);
+    for (Token token : autoindexToken) {
+      finalTokens = tokenMerger.linkUri(finalTokens, token);
+    }
+    return finalTokens;
   }
 
   /**
