@@ -88,4 +88,25 @@ public class Token {
       ", possibleTokenUris=" + possibleTokenUris +
       '}';
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Token)) {
+      return false;
+    }
+    Token token = (Token) o;
+    return Objects.equals(text, token.text) &&
+      Objects.equals(type, token.type) &&
+      Objects.equals(lemma, token.lemma) &&
+      Objects.equals(possibleTokenUris, token.possibleTokenUris);
+  }
+
+  @Override
+  public int hashCode() {
+
+    return Objects.hash(text, type, lemma, possibleTokenUris);
+  }
 }
