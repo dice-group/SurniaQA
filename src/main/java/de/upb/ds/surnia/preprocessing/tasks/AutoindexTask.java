@@ -90,7 +90,7 @@ public class AutoindexTask implements TaskInterface {
     return finalTokens;
   }
 
-  private Set<String> askAutoindex(String nGram) {
+  protected Set<String> askAutoindex(String nGram) {
     HttpEntity<String> response = getRestResponse(nGram);
     ObjectMapper mapper = new ObjectMapper();
     Set<String> uris = new HashSet<>();
