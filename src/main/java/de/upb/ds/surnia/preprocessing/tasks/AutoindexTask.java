@@ -44,6 +44,7 @@ public class AutoindexTask implements TaskInterface {
   public List<Token> processTokens(String question, List<Token> tokens) {
     NGramHierarchy hierarchy = new NGramHierarchy(question);
     List<Token> autoindexToken = getCandidateMapping(hierarchy);
+    log.debug("Candidate Mapping Produced: {}", autoindexToken);
     TokenMerger tokenMerger = new TokenMerger();
     List<Token> finalTokens = new ArrayList<>(tokens);
     for (Token token : autoindexToken) {
@@ -68,6 +69,9 @@ public class AutoindexTask implements TaskInterface {
       String nGram = nGramHierarchy.getNGram(nGramEntry);
       nGramMappings = askAutoindex(nGram);
       if (!nGramMappings.isEmpty()) {
+        log.debug("Got '{}' for n-gram '{}'", nGramMappings, nGram);
+      }
+      if (!nGramMappings.isEmpty()) {
         candidateMap.put(nGramEntry, nGramMappings);
       }
     }
@@ -75,6 +79,7 @@ public class AutoindexTask implements TaskInterface {
     // second iteration: delete children whose parents have URIs
     for (NGramEntryPosition parent : candidateMap.keySet()) {
       for (NGramEntryPosition child : parent.getAllDescendants()) {
+        log.debug("{} has parent {}, deleting child", child, parent);
         candidateMap.remove(child);
       }
     }
