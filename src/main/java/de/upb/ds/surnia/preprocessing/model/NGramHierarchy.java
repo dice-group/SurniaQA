@@ -24,6 +24,9 @@ public class NGramHierarchy {
    */
   public NGramHierarchy(String[] nGrams) {
     this.nGrams = new ArrayList<>();
+    for(int i=0; i<nGrams.length;i++) {
+      nGrams[i] = nGrams[i].replaceAll("\\p{P}", "");
+    }
     Collections.addAll(this.nGrams, nGrams);
   }
 
