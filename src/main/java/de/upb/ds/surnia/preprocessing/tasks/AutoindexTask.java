@@ -83,7 +83,7 @@ public class AutoindexTask implements TaskInterface {
     tmpKeyList.sort(Comparator.comparing(NGramEntryPosition::getPosition));
     for (NGramEntryPosition entry : tmpKeyList) {
       String nGram = nGramHierarchy.getNGram(entry);
-      Token nGramToken = new Token(nGram);
+      Token nGramToken = new Token(nGram, null);
       nGramToken.addUris(candidateMap.get(entry));
       finalTokens.add(nGramToken);
     }
