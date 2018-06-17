@@ -39,18 +39,6 @@ public class AutoindexTask implements TaskInterface {
     this.httpMethod = HttpMethod.POST;
   }
 
-  private UriComponentsBuilder addParameters(String request, UriComponentsBuilder builder) {
-    return builder.queryParam("type", "LABEL")
-      .queryParam("category", "ALL")
-      .queryParam("query", request);
-  }
-
-  private HttpHeaders setHeaders() {
-    HttpHeaders headers = new HttpHeaders();
-    headers.set("Content-Type", MediaType.APPLICATION_JSON_VALUE);
-    return headers;
-  }
-
   @Override
   public List<Token> processTokens(String question, List<Token> tokens) {
     NGramHierarchy hierarchy = new NGramHierarchy(question);
@@ -88,7 +76,7 @@ public class AutoindexTask implements TaskInterface {
     List<Token> finalTokens = new ArrayList<>();
     List<NGramEntryPosition> tmpKeyList = new ArrayList<>(candidateMap.keySet());
     tmpKeyList.sort(Comparator.comparing(NGramEntryPosition::getPosition));
-    for(NGramEntryPosition entry : tmpKeyList) {
+    for (NGramEntryPosition entry : tmpKeyList) {
       String nGram = nGramHierarchy.getNGram(entry);
       Token nGramToken = new Token(nGram);
       nGramToken.addUris(candidateMap.get(entry));
@@ -125,5 +113,17 @@ public class AutoindexTask implements TaskInterface {
       entity,
       String.class);
     return response;
+  }
+
+  private UriComponentsBuilder addParameters(String request, UriComponentsBuilder builder) {
+    return builder.queryParam("type", "LABEL")
+      .queryParam("category", "ALL")
+      .queryParam("query", request);
+  }
+
+  private HttpHeaders setHeaders() {
+    HttpHeaders headers = new HttpHeaders();
+    headers.set("Content-Type", MediaType.APPLICATION_JSON_VALUE);
+    return headers;
   }
 }
