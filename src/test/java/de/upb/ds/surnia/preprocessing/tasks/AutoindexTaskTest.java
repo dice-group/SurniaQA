@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class AutoindexTaskTest {
@@ -25,15 +26,13 @@ public class AutoindexTaskTest {
     // Set up fake autoindex via hashmap
     autoindexTask = new AutoindexTask() {
       @Override
-      protected Set<String> askAutoindex(String nGram) {
+      protected HashMap<String, Set<String>> getAnswerMapFromAutoindex(String question) {
         HashMap<String, Set<String>> fakeAutoindexEndpoint = new HashMap<>();
         fakeAutoindexEndpoint.put("alt", new HashSet<String>(Arrays.asList("foaf:age")));
         fakeAutoindexEndpoint
           .put("Angela Merkel", new HashSet<String>(Arrays.asList("dbr:Angela_Merkel")));
         fakeAutoindexEndpoint.put("Angela", new HashSet<String>(Arrays.asList("fake:Angela")));
-        return fakeAutoindexEndpoint.get(nGram) != null
-          ? fakeAutoindexEndpoint.get(nGram)
-          : new HashSet<>();
+        return fakeAutoindexEndpoint;
       }
     };
 
@@ -49,6 +48,24 @@ public class AutoindexTaskTest {
 
   @Test
   public void testProcessTokens_AngelaMerkel() {
+    List<Token> actualTokens = new ArrayList<>();
+    actualTokens.add(new Token("Wie", "PWAV"));
+    actualTokens.add(new Token("alt", "ADJD", new HashSet<String>(Arrays.asList("foaf:age"))));
+    actualTokens.add(new Token("ist", "VAFIN"));
+    actualTokens.add(new Token("Angela Merkel", "NE", new HashSet<String>(Arrays.asList("dbr:Angela_Merkel"))));
+    actualTokens.add(new Token("?", "$."));
+
+    List<Token> autoindexTokens = autoindexTask.processTokens(QUESTION, stanfordTokens);
+    Assert.assertThat(autoindexTokens, equalTo(actualTokens));
+  }
+
+  /**
+   * This test only works when there is an Autoindex-Endpoint with the below mentioned stuff.
+   */
+  @Ignore
+  @Test
+  public void testProcessTokens_AngelaMerkel_withActualAutoindex() {
+    autoindexTask = new AutoindexTask();
     List<Token> actualTokens = new ArrayList<>();
     actualTokens.add(new Token("Wie", "PWAV"));
     actualTokens.add(new Token("alt", "ADJD", new HashSet<String>(Arrays.asList("foaf:age"))));
