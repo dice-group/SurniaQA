@@ -131,11 +131,10 @@ public class QueryParameterReplacer {
       if (token.getUris() != null) {
         if (token.getUris().iterator().next().contains("resource") && resourceWanted) {
           usedTokens.add(token);
-          return token.getUris();
-        } else if (token.getUris().get(0).contains("ontology") && !resourceWanted) {
           return new ArrayList<>(token.getUris());
+        } else if (token.getUris().iterator().next().contains("ontology") && !resourceWanted) {
           usedTokens.add(token);
-          return token.getUris();
+          return new ArrayList<>(token.getUris());
         } else {
           return null;
         }
