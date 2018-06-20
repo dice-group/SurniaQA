@@ -1,17 +1,18 @@
 package de.upb.ds.surnia.queries;
 
 import de.upb.ds.surnia.preprocessing.model.Token;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 public class QuestionProperties {
 
-  public boolean containsSuperlative = false;
-  public String questionStart;
-  public int resourceAmount = 0;
-  public int ontologyAmount = 0;
+  private boolean containsSuperlative;
+  private String questionStart;
+  private int resourceAmount;
+  private int ontologyAmount;
   public List<Token> tokens;
-  public String representationForm;
+  private String representationForm;
 
   /**
    * Extract properties from a question.
@@ -21,18 +22,20 @@ public class QuestionProperties {
   public QuestionProperties(List<Token> questionTokens) {
     // Set all properties for the question according to the question tokens
     if (questionTokens.size() > 0) {
-      questionStart = questionTokens.get(0).getText();
-      tokens = questionTokens;
+      questionStart = questionTokens.get(0).getText().toUpperCase();
+
+      tokens = new ArrayList<>(questionTokens);
+
       LinkedList<String> representationFormElements = new LinkedList<>();
+      resourceAmount = 0;
+      ontologyAmount = 0;
       for (Token token : questionTokens) {
-        if (token.getType().equals("JJS") || token.getType().equals("RBS")) {
-          containsSuperlative = true;
-        }
+        containsSuperlative = token.getType().equals("JJS") || token.getType().equals("RBS");
         if (token.getUris() != null) {
-          if (token.getUris().get(0).contains("http://dbpedia.org/resource/")) {
+          if (token.getUris().iterator().next().contains("http://dbpedia.org/resource/")) {
             resourceAmount++;
             representationFormElements.add("R");
-          } else if (token.getUris().get(0).contains("http://dbpedia.org/ontology/")) {
+          } else if (token.getUris().iterator().next().contains("http://dbpedia.org/ontology/")) {
             ontologyAmount++;
             representationFormElements.add(token.getType());
           }
@@ -42,6 +45,30 @@ public class QuestionProperties {
       }
       representationForm = String.join(" ", representationFormElements);
     }
+  }
+
+  public boolean containsSuperlative() {
+    return containsSuperlative;
+  }
+
+  public String getQuestionStart() {
+    return questionStart;
+  }
+
+  public int getResourceAmount() {
+    return resourceAmount;
+  }
+
+  public int getOntologyAmount() {
+    return ontologyAmount;
+  }
+
+  public List<Token> getTokens() {
+    return tokens;
+  }
+
+  public String getRepresentationForm() {
+    return representationForm;
   }
 
   @Override
