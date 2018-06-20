@@ -1,6 +1,7 @@
 package de.upb.ds.surnia.queries;
 
 import de.upb.ds.surnia.preprocessing.model.Token;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,14 +20,14 @@ public class QueryParameterReplacer {
   /**
    * Create a replacer for all combinations of the query with the question.
    *
-   * @param questionTokens Preprocessing result of the question.
-   * @param query Query with the parameters to be replaced.
+   * @param questionTokens Pre-processing result of the question.
+   * @param queryTemplate QueryTemplate with the parameters to be replaced.
    */
   public QueryParameterReplacer(List<Token> questionTokens, String bestExampleQuestion,
-    Query query) {
-    queryString = query.sparqlTemplate;
+    QueryTemplate queryTemplate) {
+    queryString = queryTemplate.getSparqlTemplate();
     tokens = questionTokens;
-    params = query.sparqlParams;
+    params = queryTemplate.getSparqlParams();
     usedTokens = new LinkedList<>();
     exampleQuestion = bestExampleQuestion;
   }
@@ -128,10 +129,11 @@ public class QueryParameterReplacer {
   private List<String> checkToken(Token token, boolean resourceWanted) {
     if (!usedTokens.contains(token)) {
       if (token.getUris() != null) {
-        if (token.getUris().get(0).contains("resource") && resourceWanted) {
+        if (token.getUris().iterator().next().contains("resource") && resourceWanted) {
           usedTokens.add(token);
           return token.getUris();
         } else if (token.getUris().get(0).contains("ontology") && !resourceWanted) {
+          return new ArrayList<>(token.getUris());
           usedTokens.add(token);
           return token.getUris();
         } else {

@@ -17,7 +17,7 @@ public class QueryPatternMatcher {
 
   public static final float QUERY_RANKING_THRESHOlD = 0.5f;
   static final Logger logger = LoggerFactory.getLogger(QueryPatternMatcher.class);
-  private List<Query> queryTemplates;
+  private List<QueryTemplate> queryTemplates;
 
   /**
    * Parses all queryTemplates from a given file.
@@ -40,7 +40,7 @@ public class QueryPatternMatcher {
       if (queryTemplatesFileJson.length() > 0) {
         ObjectMapper mapper = new ObjectMapper();
         queryTemplates = mapper
-          .readValue(queryTemplatesFileJson, new TypeReference<ArrayList<Query>>() {
+          .readValue(queryTemplatesFileJson, new TypeReference<ArrayList<QueryTemplate>>() {
           });
       }
       queryTemplateFileReader.close();
@@ -59,7 +59,7 @@ public class QueryPatternMatcher {
     QuestionProperties questionProperties = new QuestionProperties(questionTokens);
     logger.debug("{}", questionProperties);
     LinkedList<ParameterizedSparqlString> possibleQueries = new LinkedList<>();
-    for (Query queryTemplate : queryTemplates) {
+    for (QueryTemplate queryTemplate : queryTemplates) {
       String bestExampleQuestion = rateQuery(questionProperties, queryTemplate);
       if (bestExampleQuestion != null) {
         QueryParameterReplacer queryParameterReplacer = new QueryParameterReplacer(questionTokens,
@@ -68,7 +68,7 @@ public class QueryPatternMatcher {
         possibleQueries.addAll(queryParameterReplacer.getQueriesWithReplacedParameters());
       }
     }
-    logger.debug("Query amount: {}", possibleQueries.size());
+    logger.debug("QueryTemplate amount: {}", possibleQueries.size());
     return possibleQueries;
   }
 
@@ -79,7 +79,7 @@ public class QueryPatternMatcher {
    * @param queryTemplate A query template from the prepared query set.
    * @return A ranking for the query regarding the question between 0 and 1.
    */
-  private String rateQuery(QuestionProperties questionProperties, Query queryTemplate) {
+  private String rateQuery(QuestionProperties questionProperties, QueryTemplate queryTemplate) {
     String questionStartWord = questionProperties.getQuestionStart();
     if (!Arrays.asList(queryTemplate.getQuestionStartWords()).contains(questionStartWord)) {
       logger.debug("Wrong question word");
