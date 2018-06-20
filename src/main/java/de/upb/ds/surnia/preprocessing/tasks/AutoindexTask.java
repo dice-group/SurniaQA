@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -42,8 +43,7 @@ public class AutoindexTask implements TaskInterface {
 
   @Override
   public List<Token> processTokens(String question, List<Token> tokens) {
-    NGramHierarchy hierarchy = new NGramHierarchy(question);
-    List<Token> autoindexToken = getCandidateMapping(hierarchy);
+    List<Token> autoindexToken = getCandidateMapping(question);
     log.debug("Candidate Mapping Produced: {}", autoindexToken);
     TokenMerger tokenMerger = new TokenMerger();
     List<Token> finalTokens = new ArrayList<>(tokens);
@@ -54,37 +54,35 @@ public class AutoindexTask implements TaskInterface {
   }
 
   /**
-   * Given a n-gram hierarchy, provides the candidates for all n-grams. In this process, the
-   * children will also be pruned of candidates which already present in their parents.
+   * Given a question, provides the candidates for all n-grams. In this process, the children will
+   * also be pruned of candidates which already present in their parents.
    *
-   * @param nGramHierarchy n-gram hierarchy, for which the candidates should be found
+   * @param question question for which the candidates should be found
    */
-  private List<Token> getCandidateMapping(
-    NGramHierarchy nGramHierarchy) {
+  private List<Token> getCandidateMapping(String question) {
     Map<NGramEntryPosition, Set<String>> candidateMap = new HashMap<>();
+    NGramHierarchy nGramHierarchy = new NGramHierarchy(question);
+    HashMap<String, Set<String>> answerMap = getAnswerMapFromAutoindex(question);
 
     // first iteration: only add to candidateMap
-    for (NGramEntryPosition nGramEntry : nGramHierarchy.getAllPositions()) {
-      Set<String> nGramMappings;
-      String nGram = nGramHierarchy.getNGram(nGramEntry);
-      nGramMappings = askAutoindex(nGram);
-      if (!nGramMappings.isEmpty()) {
-        log.debug("Got '{}' for n-gram '{}'", nGramMappings, nGram);
-      }
-      if (!nGramMappings.isEmpty()) {
-        candidateMap.put(nGramEntry, nGramMappings);
+    for (String nGram : answerMap.keySet()) {
+      NGramEntryPosition entryPosition = nGramHierarchy.getPosition(nGram);
+      if (entryPosition != null) {
+        candidateMap.put(entryPosition, answerMap.get(nGram));
       }
     }
 
     // second iteration: delete children whose parents have URIs
+    Map<NGramEntryPosition, Set<String>> prunedCandidateMap = new HashMap<>(candidateMap);
     for (NGramEntryPosition parent : candidateMap.keySet()) {
       for (NGramEntryPosition child : parent.getAllDescendants()) {
         log.debug("{} has parent {}, deleting child", child, parent);
-        candidateMap.remove(child);
+        prunedCandidateMap.remove(child);
       }
     }
+
     List<Token> finalTokens = new ArrayList<>();
-    List<NGramEntryPosition> tmpKeyList = new ArrayList<>(candidateMap.keySet());
+    List<NGramEntryPosition> tmpKeyList = new ArrayList<>(prunedCandidateMap.keySet());
     tmpKeyList.sort(Comparator.comparing(NGramEntryPosition::getPosition));
     for (NGramEntryPosition entry : tmpKeyList) {
       String nGram = nGramHierarchy.getNGram(entry);
@@ -95,45 +93,54 @@ public class AutoindexTask implements TaskInterface {
     return finalTokens;
   }
 
-  protected Set<String> askAutoindex(String nGram) {
+  protected HashMap<String, Set<String>> getAnswerMapFromAutoindex(String nGram) {
     HttpEntity<String> response = getRestResponse(nGram);
     ObjectMapper mapper = new ObjectMapper();
-    Set<String> uris = new HashSet<>();
+    HashMap<String, Set<String>> answerMap = new HashMap<>();
     try {
       JsonNode root = mapper.readTree(response.getBody());
       JsonNode answerArray = root.path("results").path("bindings");
       for (JsonNode objNode : answerArray) {
-        uris.add(objNode.path("uri").path("value").toString());
+        String label = objNode.path("label").path("value").toString().replace("\"", "");
+        String uri = objNode.path("uri").path("value").toString().replace("\"", "");
+        if (!answerMap.containsKey(label)) {
+          answerMap.put(label, new HashSet<>());
+        }
+        Set<String> uris = answerMap.get(label);
+        uris.add(uri);
+        answerMap.put(label, uris);
       }
     } catch (IOException ioE) {
       log.error("Answer of request is not JSON-formatted!");
     }
-    return uris;
+    log.info("{}", answerMap);
+    return answerMap;
   }
 
   private HttpEntity<String> getRestResponse(String request) {
     RestTemplate restTemplate = new RestTemplate();
-    UriComponentsBuilder queryBuilder = addParameters(request, builder);
     HttpHeaders headers = setHeaders();
     headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
-    HttpEntity<?> entity = new HttpEntity<>(headers);
-    HttpEntity<String> response = restTemplate.exchange(
-      queryBuilder.toUriString(),
-      HttpMethod.POST,
+    String body = buildJSON(request);
+    HttpEntity<?> entity = new HttpEntity<>(body, headers);
+    return restTemplate.exchange(
+      builder.toUriString(), //URL
+      httpMethod,
       entity,
       String.class);
-    return response;
-  }
-
-  private UriComponentsBuilder addParameters(String request, UriComponentsBuilder builder) {
-    return builder.queryParam("type", "LABEL")
-      .queryParam("category", "ALL")
-      .queryParam("query", request);
   }
 
   private HttpHeaders setHeaders() {
     HttpHeaders headers = new HttpHeaders();
     headers.set("Content-Type", MediaType.APPLICATION_JSON_VALUE);
     return headers;
+  }
+
+  private String buildJSON(String request) {
+    JSONObject json = new JSONObject();
+    json.put("type", "LABEL");
+    json.put("category", "ENTITY"); //change when autoindex is updated!!!
+    json.put("query", request);
+    return json.toString();
   }
 }
