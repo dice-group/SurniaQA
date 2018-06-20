@@ -86,14 +86,14 @@ public class QueryPatternMatcher {
       logger.info("Inconsistent superlative");
       return null;
     }
-    if (query.resourceAmount > questionProperties.resourceAmount) {
-      logger.info("Not enough properties");
-      return null;
-    }
-    if (query.ontologyAmount > questionProperties.ontologyAmount) {
-      logger.info("Not enough ontologies");
-      return null;
-    }
+//    if (query.resourceAmount > questionProperties.resourceAmount) {
+//      logger.info("Not enough properties");
+//      return null;
+//    }
+//    if (query.ontologyAmount > questionProperties.ontologyAmount) {
+//      logger.info("Not enough ontologies");
+//      return null;
+//    }
     double max = 0.0f;
     String question = "";
     for (String exampleQuestions : query.exampleQuestions) {
