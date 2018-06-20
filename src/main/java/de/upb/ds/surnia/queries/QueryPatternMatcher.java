@@ -17,55 +17,58 @@ public class QueryPatternMatcher {
 
   public static final float QUERY_RANKING_THRESHOlD = 0.5f;
   static final Logger logger = LoggerFactory.getLogger(QueryPatternMatcher.class);
-  private List<Query> queries;
+  private List<Query> queryTemplates;
 
   /**
-   * Parses all queries from a given file.
+   * Parses all queryTemplates from a given file.
    *
-   * @param fileName Name of the query file.
+   * @param queryTemplatesFileName Name of the query file.
    */
-  public QueryPatternMatcher(String fileName) {
-    queries = new LinkedList<>();
+  public QueryPatternMatcher(String queryTemplatesFileName) {
+    queryTemplates = new LinkedList<>();
     try {
-      // Read all prepared queries from the JSON file.
-      String file = getClass().getClassLoader().getResource(fileName).getFile();
-      BufferedReader reader = new BufferedReader(new FileReader(file));
+      // Read all prepared queryTemplates from the JSON file.
+      String queryTemplatesFile = getClass().getClassLoader().getResource(queryTemplatesFileName)
+        .getFile();
+      BufferedReader queryTemplateFileReader = new BufferedReader(
+        new FileReader(queryTemplatesFile));
       String line;
-      String jsonString = "";
-      while ((line = reader.readLine()) != null) {
-        jsonString += line;
+      String queryTemplatesFileJson = "";
+      while ((line = queryTemplateFileReader.readLine()) != null) {
+        queryTemplatesFileJson += line;
       }
-      if (jsonString.length() > 0) {
+      if (queryTemplatesFileJson.length() > 0) {
         ObjectMapper mapper = new ObjectMapper();
-        queries = mapper.readValue(jsonString, new TypeReference<ArrayList<Query>>() {
-        });
+        queryTemplates = mapper
+          .readValue(queryTemplatesFileJson, new TypeReference<ArrayList<Query>>() {
+          });
       }
-      reader.close();
+      queryTemplateFileReader.close();
     } catch (Exception e) {
       e.printStackTrace();
     }
   }
 
   /**
-   * Find all queries that were rated above the threshold for the given question.
+   * Find all queryTemplates that were rated above the threshold for the given question.
    *
    * @param questionTokens Tokens of the question with the analysis of the preprocessing pipeline.
-   * @return A list with all parameterized SPARQL queries with a good rating.
+   * @return A list with all parameterized SPARQL queryTemplates with a good rating.
    */
   public List<ParameterizedSparqlString> findMatchingQueries(List<Token> questionTokens) {
     QuestionProperties questionProperties = new QuestionProperties(questionTokens);
-    logger.info(questionProperties.toString());
+    logger.debug("{}", questionProperties);
     LinkedList<ParameterizedSparqlString> possibleQueries = new LinkedList<>();
-    for (Query query : queries) {
-      String bestExampleQuestion = rateQuery(questionProperties, query);
+    for (Query queryTemplate : queryTemplates) {
+      String bestExampleQuestion = rateQuery(questionProperties, queryTemplate);
       if (bestExampleQuestion != null) {
-        QueryParameterReplacer queryParameterReplacer;
-        queryParameterReplacer = new QueryParameterReplacer(questionTokens, bestExampleQuestion,
-          query);
+        QueryParameterReplacer queryParameterReplacer = new QueryParameterReplacer(questionTokens,
+          bestExampleQuestion,
+          queryTemplate);
         possibleQueries.addAll(queryParameterReplacer.getQueriesWithReplacedParameters());
       }
     }
-    logger.info("Query amount: " + possibleQueries.size());
+    logger.debug("Query amount: {}", possibleQueries.size());
     return possibleQueries;
   }
 
@@ -73,17 +76,17 @@ public class QueryPatternMatcher {
    * Rate a query according to the properties of the given question.
    *
    * @param questionProperties Analyzed properties of the input question.
-   * @param query A query from the prepared query set.
+   * @param queryTemplate A query template from the prepared query set.
    * @return A ranking for the query regarding the question between 0 and 1.
    */
-  private String rateQuery(QuestionProperties questionProperties, Query query) {
-    String questionStartWord = questionProperties.questionStart.toUpperCase();
-    if (!Arrays.asList(query.questionStartWord).contains(questionStartWord)) {
-      logger.info("Wrong question word");
+  private String rateQuery(QuestionProperties questionProperties, Query queryTemplate) {
+    String questionStartWord = questionProperties.getQuestionStart();
+    if (!Arrays.asList(queryTemplate.getQuestionStartWords()).contains(questionStartWord)) {
+      logger.debug("Wrong question word");
       return null;
     }
-    if (query.cotainsSuperlative && !questionProperties.containsSuperlative) {
-      logger.info("Inconsistent superlative");
+    if (queryTemplate.containsSuperlative() && !questionProperties.containsSuperlative()) {
+      logger.debug("Inconsistent superlative");
       return null;
     }
 //    if (query.resourceAmount > questionProperties.resourceAmount) {
@@ -95,21 +98,20 @@ public class QueryPatternMatcher {
 //      return null;
 //    }
     double max = 0.0f;
-    String question = "";
-    for (String exampleQuestions : query.exampleQuestions) {
-      String s1 = exampleQuestions;
-      String s2 = questionProperties.representationForm;
-      double similarity = stringSimilarity(s1, s2);
+    String bestFitQuestion = "";
+    for (String questionTemplate : queryTemplate.getExampleQuestions()) {
+      double similarity = stringSimilarity(questionTemplate,
+        questionProperties.getRepresentationForm());
       if (similarity > max) {
         max = similarity;
-        question = s1;
+        bestFitQuestion = questionTemplate;
       }
     }
     if (max >= QUERY_RANKING_THRESHOlD) {
-      logger.info(question + " - " + questionProperties.representationForm + ": " + max);
-      return question;
+      logger.info("{} - {}: {}", bestFitQuestion, questionProperties.getRepresentationForm(), max);
+      return bestFitQuestion;
     } else {
-      logger.info("Similarity too low");
+      logger.warn("Similarity too low. Maximum is only {}", max);
       return null;
     }
   }
