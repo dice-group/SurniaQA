@@ -32,17 +32,14 @@ public class QuestionAnswerer extends AbstractQuestionAnswerer {
   @Override
   public AnswerContainer retrieveAnswers(String question, String lang) {
     // Analyze question with CoreNLP, FOX and OntologyIndex
-    List<Token> tokens = null;
-    tokens = preprocessingPipeline.processQuestion(question);
+    List<Token> tokens = preprocessingPipeline.processQuestion(question);
 
     // Get a list with all queries rated above the threshold for the question and query DBpedia
     List<ParameterizedSparqlString> queries = queryPatternMatcher.findMatchingQueries(tokens);
     AnswerContainer answer = null;
     if (queries.size() > 0) {
       for (ParameterizedSparqlString query : queries) {
-        logger.info("Query: " + query.toString());
-      }
-      for (ParameterizedSparqlString query : queries) {
+        logger.info("QueryTemplate: " + query.toString());
         answer = getAnswerForQuery(query);
         if (answer != null) {
           break;
