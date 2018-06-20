@@ -52,7 +52,7 @@ public class QueryPatternMatcher {
   /**
    * Find all queryTemplates that were rated above the threshold for the given question.
    *
-   * @param questionTokens Tokens of the question with the analysis of the preprocessing pipeline.
+   * @param questionTokens Tokens of the question with the analysis of the pre-processing pipeline.
    * @return A list with all parameterized SPARQL queryTemplates with a good rating.
    */
   public List<ParameterizedSparqlString> findMatchingQueries(List<Token> questionTokens) {
