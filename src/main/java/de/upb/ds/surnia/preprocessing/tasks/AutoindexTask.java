@@ -24,23 +24,48 @@ import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+/**
+ * This Task-implementation builds onto previous tasks and tries to find URIs for the given
+ * questions. For this, the question is given to an Autoindex-endpoint. The returned URIs are
+ * processed into a n-gram hierarchy, giving a mapping of n-grams to the found URIs. This mapping
+ * influences the token building, which considers information of the given tokens from previous
+ * tokens.
+ */
 public class AutoindexTask implements TaskInterface {
 
-  private static final String DEFAULT_URL = "http://localhost:9091/search";
+  /**
+   * The default URL for the Autoindex-endpoint.
+   */
+  public static final String DEFAULT_URL = "http://localhost:9091/search";
   private static final Logger log = LoggerFactory.getLogger(AutoindexTask.class);
 
   private UriComponentsBuilder builder;
   private HttpMethod httpMethod;
 
+  /**
+   * Constructs this task with the default URL.
+   */
   public AutoindexTask() {
     this(DEFAULT_URL);
   }
 
+  /**
+   * Constructs this task with the given URL.
+   */
   public AutoindexTask(String url) {
     this.builder = UriComponentsBuilder.fromHttpUrl(url);
     this.httpMethod = HttpMethod.POST;
   }
 
+  /**
+   * Produces tokens via using Autoindex to retrieve URIs. These tokens are merged with the given
+   * tokens. The result will be returned.
+   *
+   * @param question question asked by the user
+   * @param tokens tokens from other tasks, which will be merged with the tokens produces by this
+   * class
+   * @return merged tokens with URL-information produces by Autoindex
+   */
   @Override
   public List<Token> processTokens(String question, List<Token> tokens) {
     List<Token> autoindexToken = produceTokens(question);
@@ -55,7 +80,7 @@ public class AutoindexTask implements TaskInterface {
 
   /**
    * Given a question, provides the candidates for all n-grams. In this process, the children will
-   * also be pruned of candidates which already present in their parents.
+   * be pruned if their parents have any URIs.
    *
    * @param question question for which the candidates should be found
    */
@@ -81,6 +106,7 @@ public class AutoindexTask implements TaskInterface {
       }
     }
 
+    // Map n-gram hierarchy into list of tokens
     List<Token> finalTokens = new ArrayList<>();
     List<NGramEntryPosition> tmpKeyList = new ArrayList<>(prunedCandidateMap.keySet());
     tmpKeyList.sort(Comparator.comparing(NGramEntryPosition::getPosition));
@@ -93,6 +119,12 @@ public class AutoindexTask implements TaskInterface {
     return finalTokens;
   }
 
+  /**
+   * Given a question, it requests the Autoindex-endpoint for a mapping. The response is parsed into
+   * a HashMap.
+   *
+   * @return mapping of n-grams to a set of URIs
+   */
   protected HashMap<String, Set<String>> getAnswerMapFromAutoindex(String question) {
     HttpEntity<String> response = getRestResponse(question);
     ObjectMapper mapper = new ObjectMapper();
