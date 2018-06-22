@@ -139,10 +139,12 @@ public class QueryParameterReplacer {
   }
 
   /**
-   * Returns a list of URIs for the given token. For this, it is considered if we want a ressource or a
-   * @param token
-   * @param resourceWanted
-   * @return
+   * Returns a list of URIs for the given token. For this, it is considered if we want a resource or
+   * not.
+   *
+   * @param token token to be inspected for URIs
+   * @param resourceWanted true if we want a Ressource as URI
+   * @return list of URIs extracted from the given token
    */
   private List<String> getUrisForToken(Token token, boolean resourceWanted) {
     if (!usedTokens.contains(token)) {
