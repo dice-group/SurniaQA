@@ -15,7 +15,7 @@ public class QueryParameterReplacer {
   private List<Token> usedTokens;
   private String queryString;
   private String bestQuestionTemplate;
-  private HashMap<String, List<String>> possibleReplacements;
+  private HashMap<String, List<String>> possibleParamInputs;
 
   /**
    * Create a replacer for all combinations of the query with the question.
@@ -53,16 +53,16 @@ public class QueryParameterReplacer {
 
   private List<HashMap<String, String>> generateParameterReplacementCombinations() {
     List<HashMap<String, String>> combinations = new LinkedList<>();
-    possibleReplacements = new HashMap<>();
+    possibleParamInputs = new HashMap<>();
     for (String param : params) {
       List<String> uris = getUrisFromClosestToken(param);
-      possibleReplacements.put(param, uris);
+      possibleParamInputs.put(param, uris);
     }
     int[] counter = new int[params.length];
     for (int i = 0; i < counter.length; i++) {
       counter[i] = 0;
     }
-    while (!isCounterFinished(counter)) {
+    while (!allCombinationsProduced(counter)) {
       combinations.add(createCombination(counter));
       increaseCounterArray(counter, 0);
     }
@@ -71,8 +71,8 @@ public class QueryParameterReplacer {
   }
 
   private void increaseCounterArray(int[] counter, int i) {
-    int l = possibleReplacements.get(params[i]).size() - 1;
-    if (counter[i] < l) {
+    int length = possibleParamInputs.get(params[i]).size() - 1;
+    if (counter[i] < length) {
       counter[i]++;
     } else if (i < counter.length - 1) {
       counter[i] = 0;
@@ -80,9 +80,9 @@ public class QueryParameterReplacer {
     }
   }
 
-  private boolean isCounterFinished(int[] counter) {
+  private boolean allCombinationsProduced(int[] counter) {
     for (int i = 0; i < counter.length; i++) {
-      if (counter[i] < (possibleReplacements.get(params[i]).size() - 1)) {
+      if (counter[i] < (possibleParamInputs.get(params[i]).size() - 1)) {
         return false;
       }
     }
@@ -93,7 +93,7 @@ public class QueryParameterReplacer {
     HashMap<String, String> combination = new HashMap<>();
     for (int i = 0; i < params.length; i++) {
       String param = params[i];
-      String uri = possibleReplacements.get(param).get(counter[i]);
+      String uri = possibleParamInputs.get(param).get(counter[i]);
       combination.put(param, uri);
     }
     return combination;
