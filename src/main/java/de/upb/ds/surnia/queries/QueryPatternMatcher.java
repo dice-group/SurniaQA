@@ -60,10 +60,10 @@ public class QueryPatternMatcher {
     logger.debug("{}", questionProperties);
     LinkedList<ParameterizedSparqlString> possibleQueries = new LinkedList<>();
     for (QueryTemplate queryTemplate : queryTemplates) {
-      String bestExampleQuestion = rateQuery(questionProperties, queryTemplate);
-      if (bestExampleQuestion != null) {
+      String bestQuestionTemplate = rateQuery(questionProperties, queryTemplate);
+      if (bestQuestionTemplate != null) {
         QueryParameterReplacer queryParameterReplacer = new QueryParameterReplacer(questionTokens,
-          bestExampleQuestion,
+          bestQuestionTemplate,
           queryTemplate);
         possibleQueries.addAll(queryParameterReplacer.getQueriesWithReplacedParameters());
       }
@@ -97,6 +97,7 @@ public class QueryPatternMatcher {
 //      logger.info("Not enough ontologies");
 //      return null;
 //    }
+
     double max = 0.0f;
     String bestFitQuestion = "";
     for (String questionTemplate : queryTemplate.getExampleQuestions()) {
