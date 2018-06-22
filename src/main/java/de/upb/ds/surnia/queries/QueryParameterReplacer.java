@@ -99,9 +99,17 @@ public class QueryParameterReplacer {
     return combination;
   }
 
+  /**
+   * Searches for URIs in tokens close to the given POS-Tag and returns them. The given parameter is
+   * the parameter for the SPARQL-query.
+   *
+   * @param param POS-Tag that indicates where we should start the search in the question-template
+   * @return List of URIs in a token that is close to the token we wanted it for
+   */
   private List<String> getUrisFromClosestToken(String param) {
     boolean resourceWanted = param.charAt(0) == 'R';
 
+    // Get position of param in question template
     int pos = 0;
     for (String posTag : bestQuestionTemplate.split(" ")) {
       if (posTag.equalsIgnoreCase(param)) {
@@ -110,6 +118,7 @@ public class QueryParameterReplacer {
       pos++;
     }
 
+    // Iterate over the tokens in both directions until you find a token with URIs
     for (int distance = 0; distance < tokens.size(); distance++) {
       int leftPos = pos - distance;
       int rightPos = pos + distance;
@@ -129,6 +138,12 @@ public class QueryParameterReplacer {
     return null;
   }
 
+  /**
+   * Returns a list of URIs for the given token. For this, it is considered if we want a ressource or a
+   * @param token
+   * @param resourceWanted
+   * @return
+   */
   private List<String> getUrisForToken(Token token, boolean resourceWanted) {
     if (!usedTokens.contains(token)) {
       if (!token.getUris().isEmpty()) {
