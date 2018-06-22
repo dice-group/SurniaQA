@@ -43,12 +43,12 @@ public class AutoindexTask implements TaskInterface {
 
   @Override
   public List<Token> processTokens(String question, List<Token> tokens) {
-    List<Token> autoindexToken = getCandidateMapping(question);
+    List<Token> autoindexToken = produceTokens(question);
     log.debug("Candidate Mapping Produced: {}", autoindexToken);
     TokenMerger tokenMerger = new TokenMerger();
     List<Token> finalTokens = new ArrayList<>(tokens);
     for (Token token : autoindexToken) {
-      finalTokens = tokenMerger.linkUri(finalTokens, token);
+      finalTokens = tokenMerger.integrateToken(finalTokens, token);
     }
     return finalTokens;
   }
@@ -59,7 +59,7 @@ public class AutoindexTask implements TaskInterface {
    *
    * @param question question for which the candidates should be found
    */
-  private List<Token> getCandidateMapping(String question) {
+  private List<Token> produceTokens(String question) {
     Map<NGramEntryPosition, Set<String>> candidateMap = new HashMap<>();
     NGramHierarchy nGramHierarchy = new NGramHierarchy(question);
     HashMap<String, Set<String>> answerMap = getAnswerMapFromAutoindex(question);
@@ -93,8 +93,8 @@ public class AutoindexTask implements TaskInterface {
     return finalTokens;
   }
 
-  protected HashMap<String, Set<String>> getAnswerMapFromAutoindex(String nGram) {
-    HttpEntity<String> response = getRestResponse(nGram);
+  protected HashMap<String, Set<String>> getAnswerMapFromAutoindex(String question) {
+    HttpEntity<String> response = getRestResponse(question);
     ObjectMapper mapper = new ObjectMapper();
     HashMap<String, Set<String>> answerMap = new HashMap<>();
     try {
