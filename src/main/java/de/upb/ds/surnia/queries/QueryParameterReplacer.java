@@ -14,22 +14,23 @@ public class QueryParameterReplacer {
   private List<Token> tokens;
   private List<Token> usedTokens;
   private String queryString;
-  private String exampleQuestion;
+  private String bestQuestionTemplate;
   private HashMap<String, List<String>> possibleReplacements;
 
   /**
    * Create a replacer for all combinations of the query with the question.
    *
    * @param questionTokens Pre-processing result of the question.
+   * @param bestQuestionTemplate the best fitting template for the given question
    * @param queryTemplate QueryTemplate with the parameters to be replaced.
    */
-  public QueryParameterReplacer(List<Token> questionTokens, String bestExampleQuestion,
+  public QueryParameterReplacer(List<Token> questionTokens, String bestQuestionTemplate,
     QueryTemplate queryTemplate) {
     queryString = queryTemplate.getSparqlTemplate();
     tokens = questionTokens;
     params = queryTemplate.getSparqlParams();
     usedTokens = new LinkedList<>();
-    exampleQuestion = bestExampleQuestion;
+    this.bestQuestionTemplate = bestQuestionTemplate;
   }
 
   /**
@@ -99,25 +100,27 @@ public class QueryParameterReplacer {
   }
 
   private List<String> getUrisFromClosestToken(String param) {
-    int p = 0;
     boolean resourceWanted = param.charAt(0) == 'R';
-    for (String s : exampleQuestion.split(" ")) {
-      p++;
-      if (s.equalsIgnoreCase(param)) {
+
+    int pos = 0;
+    for (String posTag : bestQuestionTemplate.split(" ")) {
+      if (posTag.equalsIgnoreCase(param)) {
         break;
       }
+      pos++;
     }
-    for (int d = 0; d < tokens.size(); d++) {
-      int iL = p - d;
-      int iR = p + d;
-      if (iL >= 0 && iL < tokens.size()) {
-        List<String> uris = checkToken(tokens.get(iL), resourceWanted);
+
+    for (int distance = 0; distance < tokens.size(); distance++) {
+      int leftPos = pos - distance;
+      int rightPos = pos + distance;
+      if (leftPos >= 0 && leftPos < tokens.size()) {
+        List<String> uris = getUrisForToken(tokens.get(leftPos), resourceWanted);
         if (uris != null) {
           return uris;
         }
       }
-      if (iR < tokens.size()) {
-        List<String> uris = checkToken(tokens.get(iR), resourceWanted);
+      if (rightPos < tokens.size()) {
+        List<String> uris = getUrisForToken(tokens.get(rightPos), resourceWanted);
         if (uris != null) {
           return uris;
         }
@@ -126,9 +129,9 @@ public class QueryParameterReplacer {
     return null;
   }
 
-  private List<String> checkToken(Token token, boolean resourceWanted) {
+  private List<String> getUrisForToken(Token token, boolean resourceWanted) {
     if (!usedTokens.contains(token)) {
-      if (token.getUris() != null) {
+      if (!token.getUris().isEmpty()) {
         if (token.getUris().iterator().next().contains("resource") && resourceWanted) {
           usedTokens.add(token);
           return new ArrayList<>(token.getUris());
