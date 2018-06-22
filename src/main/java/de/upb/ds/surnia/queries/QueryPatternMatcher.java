@@ -45,7 +45,7 @@ public class QueryPatternMatcher {
       }
       queryTemplateFileReader.close();
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error("{}", e.getLocalizedMessage());
     }
   }
 
