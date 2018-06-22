@@ -17,10 +17,23 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This Task-implementation acts as a start task for the processing. It ignores the given tokens and
+ * instead processes the question with tools of StanfordNER.
+ */
 public class StanfordNERTask implements TaskInterface {
 
-  final Logger logger = LoggerFactory.getLogger(StanfordNERTask.class);
+  private final Logger logger = LoggerFactory.getLogger(StanfordNERTask.class);
 
+  /**
+   * Returns a list of tokens with POS-tags and other NER-relevant information provided by the
+   * StanfordNER. It ignores the given token-list but instead build its own list by only considering
+   * the given question.
+   *
+   * @param question question which will be processed and transformed into tokens
+   * @param tokens given tokens are ignored
+   * @return a list of tokens with POS-tags and other NER-relevant information
+   */
   @Override
   public List<Token> processTokens(String question, List<Token> tokens) {
     Properties props = StringUtils.argsToProperties("-props", "StanfordCoreNLP-german.properties");
