@@ -33,14 +33,14 @@ public class QueryPatternMatcher {
       BufferedReader queryTemplateFileReader = new BufferedReader(
         new FileReader(queryTemplatesFile));
       String line;
-      String queryTemplatesFileJson = "";
+      StringBuilder jsonStringBuilder = new StringBuilder();
       while ((line = queryTemplateFileReader.readLine()) != null) {
-        queryTemplatesFileJson += line;
+        jsonStringBuilder.append(line);
       }
-      if (queryTemplatesFileJson.length() > 0) {
+      if (jsonStringBuilder.length() > 0) {
         ObjectMapper mapper = new ObjectMapper();
         queryTemplates = mapper
-          .readValue(queryTemplatesFileJson, new TypeReference<ArrayList<QueryTemplate>>() {
+          .readValue(jsonStringBuilder.toString(), new TypeReference<ArrayList<QueryTemplate>>() {
           });
       }
       queryTemplateFileReader.close();
