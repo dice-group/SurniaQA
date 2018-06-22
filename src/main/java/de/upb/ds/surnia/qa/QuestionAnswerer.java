@@ -31,7 +31,7 @@ public class QuestionAnswerer extends AbstractQuestionAnswerer {
 
   @Override
   public AnswerContainer retrieveAnswers(String question, String lang) {
-    // Analyze question with CoreNLP, FOX and OntologyIndex
+    // Analyze question with all the Tasks in the PreprocessingPipeline
     List<Token> tokens = preprocessingPipeline.processQuestion(question);
 
     // Get a list with all queries rated above the threshold for the question and query DBpedia
