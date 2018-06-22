@@ -14,7 +14,7 @@ import org.junit.Test;
 
 public class TokenMergerTest {
 
-  List<Token> stanfordTokens;
+  private List<Token> stanfordTokens;
 
   @Before
   public void init() {
@@ -30,7 +30,7 @@ public class TokenMergerTest {
   @Test
   public void testLinkUri_Merge2Tokens() {
     TokenMerger tm = new TokenMerger();
-    List<Token> newTokens = tm.linkUri(stanfordTokens,
+    List<Token> newTokens = tm.integrateToken(stanfordTokens,
       new Token("Angela Merkel",
         null,
         new HashSet<>(Arrays.asList("dbr:Angela_Merkel"))
@@ -49,7 +49,7 @@ public class TokenMergerTest {
   @Test
   public void testLinkUri_JustMergeTokenInformation_WithNoType() {
     TokenMerger tm = new TokenMerger();
-    List<Token> newTokens = tm.linkUri(stanfordTokens,
+    List<Token> newTokens = tm.integrateToken(stanfordTokens,
       new Token("alt",
         null,
         new HashSet<>(Arrays.asList("foaf:age"))
@@ -68,7 +68,7 @@ public class TokenMergerTest {
   @Test
   public void testLinkUri_JustMergeTokenInformation_WithType() {
     TokenMerger tm = new TokenMerger();
-    List<Token> newTokens = tm.linkUri(stanfordTokens,
+    List<Token> newTokens = tm.integrateToken(stanfordTokens,
       new Token("alt",
         "Test",
         new HashSet<>(Arrays.asList("foaf:age"))
