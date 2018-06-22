@@ -51,6 +51,10 @@ public class QueryParameterReplacer {
     return queries;
   }
 
+  /**
+   * Produces all possible combinations of parameter replacements. E.g. for 3 parameter with 2 URIs
+   * each, it will produce 8 combinations. Each list element contains 1 combination.
+   */
   private List<HashMap<String, String>> generateParameterReplacementCombinations() {
     List<HashMap<String, String>> combinations = new LinkedList<>();
     possibleParamInputs = new HashMap<>();
@@ -58,6 +62,12 @@ public class QueryParameterReplacer {
       List<String> uris = getUrisFromClosestToken(param);
       possibleParamInputs.put(param, uris);
     }
+
+    /* Produce a array which holds the information which combination we should use now.
+     * I.e. for three parameters A,B,C (this order) and the counter-array [2,0,4],
+     * it would specify that the 3rd URI for A, the 1st URI for B and the 5th URI for C should be
+     * used for this combination.
+     */
     int[] counter = new int[params.length];
     for (int i = 0; i < counter.length; i++) {
       counter[i] = 0;
