@@ -6,16 +6,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This class provides Combines
+ */
 public class TokenMerger {
 
   /**
-   * Combine tokens that can be linked to a DBpedia resource.
+   * Tries to integrate the given token into the given list of tokens. If the text of the new token
+   * matches with two or more tokens, these will be merged in the final result.
    *
    * @param oldTokens List of tokens.
-   * @param newToken String appearance of the found resource.
+   * @param newToken newly produced token.
    * @return List of tokens where the resource tokens are combined and linked.
    */
-  public List<Token> linkUri(List<Token> oldTokens, Token newToken) {
+  public List<Token> integrateToken(List<Token> oldTokens, Token newToken) {
     List<Token> linkedTokens = new ArrayList<>();
     HashMap<String, Integer> posTags = new HashMap<>();
     boolean appearanceFound = false;
