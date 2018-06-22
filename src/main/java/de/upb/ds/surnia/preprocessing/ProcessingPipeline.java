@@ -1,6 +1,7 @@
 package de.upb.ds.surnia.preprocessing;
 
 import de.upb.ds.surnia.preprocessing.model.Token;
+import de.upb.ds.surnia.preprocessing.tasks.AutoindexTask;
 import de.upb.ds.surnia.preprocessing.tasks.StanfordNERTask;
 import de.upb.ds.surnia.preprocessing.tasks.TaskInterface;
 import java.io.IOException;
@@ -20,6 +21,7 @@ public class ProcessingPipeline {
   public ProcessingPipeline() {
     this.taskPipeline = new ArrayList<>();
     taskPipeline.add(new StanfordNERTask());
+    taskPipeline.add(new AutoindexTask());
   }
 
   /**
