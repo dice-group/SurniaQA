@@ -53,6 +53,13 @@ public class TokenMerger {
     return linkedTokens;
   }
 
+  /**
+   * This method chooses a POS-tag based on the biggest coverage, i.e. if 3 tokens where merged in
+   * {@link #integrateToken(List, Token)} and 2 of the 3 tokens have the same POS-tag, that POS-tag
+   * will be chosen for the new token.
+   *
+   * @param posTags Map of the POS-tags and the number of their occurences.
+   */
   private String choosePosTag(Map<String, Integer> posTags) {
     String posTag = "NNP";
     int max = 0;

@@ -89,6 +89,7 @@ public class QueryPatternMatcher {
       logger.debug("Inconsistent superlative");
       return null;
     }
+    // Commented out for now, as these conditions will never be met with the new implementation of tasks.
 //    if (query.resourceAmount > questionProperties.resourceAmount) {
 //      logger.info("Not enough properties");
 //      return null;

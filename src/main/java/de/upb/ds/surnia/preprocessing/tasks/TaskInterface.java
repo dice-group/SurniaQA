@@ -10,6 +10,14 @@ import java.util.List;
  */
 public interface TaskInterface {
 
+  /**
+   * Given the question and tokens from previous tasks, this method returns its own set of tokens.
+   * Implementations can ignore either the given question or the tokens. Ignoring the tokens means
+   * that this task can be considered as a starting point For the processing pipeline.
+   *
+   * @param question question asked by the use
+   * @param tokens tokens from previous tasks
+   */
   List<Token> processTokens(String question, List<Token> tokens);
 
 }
