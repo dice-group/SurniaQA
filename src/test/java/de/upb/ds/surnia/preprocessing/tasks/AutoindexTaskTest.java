@@ -17,6 +17,7 @@ import org.junit.Test;
 public class AutoindexTaskTest {
 
   private final String QUESTION = "Wie alt ist Angela Merkel?";
+  private final String ANOTHER_QUESTION = "What is Soccer ?";
   private AutoindexTask autoindexTask;
   private List<Token> stanfordTokens;
 
@@ -24,7 +25,8 @@ public class AutoindexTaskTest {
   @Before
   public void init() {
     // Set up fake autoindex via hashmap
-    autoindexTask = new AutoindexTask() {
+    autoindexTask = new AutoindexTask();
+    /*{
       @Override
       protected HashMap<String, Set<String>> getAnswerMapFromAutoindex(String question) {
         HashMap<String, Set<String>> fakeAutoindexEndpoint = new HashMap<>();
@@ -34,7 +36,7 @@ public class AutoindexTaskTest {
         fakeAutoindexEndpoint.put("Angela", new HashSet<String>(Arrays.asList("fake:Angela")));
         return fakeAutoindexEndpoint;
       }
-    };
+    };*/
 
     // produce a stanford output
     stanfordTokens = new ArrayList<>();
@@ -44,6 +46,15 @@ public class AutoindexTaskTest {
     stanfordTokens.add(new Token("Angela", "NE"));
     stanfordTokens.add(new Token("Merkel", "NE"));
     stanfordTokens.add(new Token("?", "$."));
+  }
+
+  private List<Token> produceStandfordTestTokens() {
+    List<Token> stanfordTokensTest = new ArrayList<>();
+    stanfordTokensTest.add(new Token("What", "PWAV"));
+    stanfordTokensTest.add(new Token("is", "VAFIN"));
+    stanfordTokensTest.add(new Token("Soccer", "NE"));
+    stanfordTokensTest.add(new Token("?", "$."));
+    return stanfordTokensTest;
   }
 
   @Test
@@ -57,6 +68,18 @@ public class AutoindexTaskTest {
 
     List<Token> autoindexTokens = autoindexTask.processTokens(QUESTION, stanfordTokens);
     Assert.assertThat(autoindexTokens, equalTo(actualTokens));
+  }
+
+  @Test
+  public void testProcessTokens_Soccer() {
+    List<Token> actualTokens = new ArrayList<>();
+    actualTokens.add(new Token("Was", "PWAV"));
+    actualTokens.add(new Token("ist", "VAFIN", new HashSet<String>()));
+    actualTokens.add(new Token("Football", "NE", new HashSet<String>(Arrays.asList("dbr:Soccer"))));
+    actualTokens.add(new Token("?", "$."));
+
+    List<Token> autoIndexTokens = autoindexTask.processTokens(ANOTHER_QUESTION, produceStandfordTestTokens());
+    Assert.assertThat(autoIndexTokens, equalTo(actualTokens));
   }
 
   /**

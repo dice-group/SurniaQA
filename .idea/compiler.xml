@@ -1,9 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <bytecodeTargetLevel>
-      <module name="Surnia_main" target="1.8" />
-      <module name="Surnia_test" target="1.8" />
-    </bytecodeTargetLevel>
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="autoindex" />
+        <module name="cedric-ms" />
+        <module name="chatbot" />
+        <module name="database-ms" />
+        <module name="dbpedia-ms" />
+        <module name="eureka-server" />
+        <module name="executer-ms" />
+        <module name="fox-ms" />
+        <module name="fred-ms" />
+        <module name="open-ie-ms" />
+        <module name="qa-ms" />
+        <module name="repo-ms" />
+        <module name="sorookin-ms" />
+        <module name="webclient" />
+      </profile>
+    </annotationProcessing>
   </component>
 </project>

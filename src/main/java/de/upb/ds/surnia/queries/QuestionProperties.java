@@ -31,7 +31,7 @@ public class QuestionProperties {
       ontologyAmount = 0;
       for (Token token : questionTokens) {
         containsSuperlative = token.getType().equals("JJS") || token.getType().equals("RBS");
-        if (token.getUris() != null) {
+        if (token.getUris() != null && token.getUris().size() > 0) {
           if (token.getUris().iterator().next().contains("http://dbpedia.org/resource/")) {
             resourceAmount++;
             representationFormElements.add("R");

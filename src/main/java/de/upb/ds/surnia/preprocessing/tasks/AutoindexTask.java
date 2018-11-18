@@ -14,6 +14,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +23,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -31,6 +34,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  * influences the token building, which considers information of the given tokens from previous
  * tokens.
  */
+@Component
 public class AutoindexTask implements TaskInterface {
 
   /**
@@ -116,6 +120,13 @@ public class AutoindexTask implements TaskInterface {
       nGramToken.addUris(candidateMap.get(entry));
       finalTokens.add(nGramToken);
     }
+
+      for (String token: answerMap.keySet()
+           ) {
+        Token t = new Token(token,"",answerMap.get(token));
+          finalTokens.add(t);
+      }
+
     return finalTokens;
   }
 
@@ -170,9 +181,15 @@ public class AutoindexTask implements TaskInterface {
 
   private String buildJSON(String request) {
     JSONObject json = new JSONObject();
-    json.put("type", "LABEL");
-    json.put("category", "ENTITY"); //change when autoindex is updated!!!
-    json.put("query", request);
+    try
+    {
+      json.put("type", "LABEL");
+      json.put("category", "ENTITY"); //change when autoindex is updated!!!
+      json.put("query", request);
+    } catch (JSONException e)
+    {
+      e.printStackTrace();
+    }
     return json.toString();
   }
 }

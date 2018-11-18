@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
-    <file url="PROJECT" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../autoindex" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../sask" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../sask/cedric-ms" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../sask/chatbot" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../sask/database-ms" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../sask/dbpedia-ms" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../sask/eureka-server" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../sask/executer-ms" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../sask/fox-ms" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../sask/fred-ms" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../sask/open-ie-ms" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../sask/qa-ms" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../sask/repo-ms" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../sask/sorookin-ms" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../sask/webclient" charset="UTF-8" />
   </component>
 </project>
