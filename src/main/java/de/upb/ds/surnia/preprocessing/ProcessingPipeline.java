@@ -21,7 +21,7 @@ public class ProcessingPipeline {
   public ProcessingPipeline() {
     this.taskPipeline = new ArrayList<>();
     taskPipeline.add(new StanfordNERTask());
-    taskPipeline.add(new AutoindexTask());
+    taskPipeline.add(new AutoindexTask());// TODO: 18/11/2018 <S> for now don't use AutoIndex , uncomment later
   }
 
   /**

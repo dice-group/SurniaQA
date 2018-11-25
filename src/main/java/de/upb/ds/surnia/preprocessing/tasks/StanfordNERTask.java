@@ -16,11 +16,13 @@ import java.util.List;
 import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * This Task-implementation acts as a start task for the processing. It ignores the given tokens and
  * instead processes the question with tools of StanfordNER.
  */
+@Component
 public class StanfordNERTask implements TaskInterface {
 
   private final Logger logger = LoggerFactory.getLogger(StanfordNERTask.class);
@@ -36,7 +38,9 @@ public class StanfordNERTask implements TaskInterface {
    */
   @Override
   public List<Token> processTokens(String question, List<Token> tokens) {
-    Properties props = StringUtils.argsToProperties("-props", "StanfordCoreNLP-german.properties");
+//    Properties props = StringUtils.argsToProperties("-props", "StanfordCoreNLP-german.properties");
+    Properties props = new Properties();
+//    props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse"); //lemma not supported in german
     props.setProperty("annotators", "tokenize, ssplit, pos, lemma"); //lemma not supported in german
     Annotation annotation = new Annotation(question);
     StanfordCoreNLP nlp = new StanfordCoreNLP(props);

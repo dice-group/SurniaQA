@@ -60,6 +60,7 @@ public class QuestionAnswerer extends AbstractQuestionAnswerer {
     return answer;
   }
 
+  // TODO: 18/11/2018 <S> Implementation of this method will be changed and DBPedia Will be decoupled
   private AnswerContainer getAnswerForQuery(ParameterizedSparqlString query) {
     String queryStringRepresentation = query.toString();
     if (queryStringRepresentation.contains("SELECT")) {

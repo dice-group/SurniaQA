@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/ask")
 public class SurniaRestController {
 
   static Logger logger = LoggerFactory.getLogger(SurniaRestController.class);
@@ -58,23 +57,21 @@ public class SurniaRestController {
     }
   }
 
-//  @RequestMapping(value = "/ask", method = RequestMethod.GET)
-  @GetMapping("/{query}")
-  public String askQuestions(@Valid @PathVariable String query, HttpServletResponse response) {
+  @RequestMapping(value = "/ask", method = RequestMethod.GET)
+  public String askQuestions(@RequestParam Map<String, String> params, HttpServletResponse response) {
 
-//    String question = params.get("query");
-    String question = query;
+    String question = params.get("query");
+
     List<Token> autoIndextokens = autoindexTask.processTokens(question, produceStandfordTestTokens());
     Set<String> uri = null;
     for (Token t : autoIndextokens
-      ) {
+    ) {
       uri = t.getUris();
-      if (uri.size()>0)
+      if (uri.size() > 0)
         break;
     }
     String possibleURL = "";
-    for(Iterator<String> it = uri.iterator(); ((Iterator) it).hasNext();)
-    {
+    for (Iterator<String> it = uri.iterator(); ((Iterator) it).hasNext(); ) {
       possibleURL = it.next();
     }
     return possibleURL;
