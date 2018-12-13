@@ -25,7 +25,7 @@ public class NGramHierarchy {
   public NGramHierarchy(String[] nGrams) {
     this.nGrams = new ArrayList<>();
     for (int i = 0; i < nGrams.length; i++) {
-      nGrams[i] = nGrams[i].replaceAll("\\p{P}", "");
+      nGrams[i] = nGrams[i].replaceAll("\\p{P}", "").toLowerCase();
     }
     Collections.addAll(this.nGrams, nGrams);
   }
@@ -203,9 +203,10 @@ public class NGramHierarchy {
    * @return position of the given n-gram
    */
   public NGramEntryPosition getPosition(String[] forNGram) {
+    String forEachNGram = forNGram[0].replaceAll("\\\\","").toLowerCase(); // TODO: 13/12/2018 this is because autoindex sends unwanted characters along with nGrams
     int pos = -1;
     for (int i = 0; i < nGrams.size(); i++) {
-      if (nGrams.get(i).equals(forNGram[0])) {
+      if (nGrams.get(i).equals(forEachNGram)) {
         boolean foundWholeNGram = true;
         for (int j = 1; j < forNGram.length; j++) {
           if (i + j >= nGrams.size() || !nGrams.get(i + j).equals(forNGram[j])) {

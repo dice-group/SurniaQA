@@ -120,13 +120,6 @@ public class AutoindexTask implements TaskInterface {
       nGramToken.addUris(candidateMap.get(entry));
       finalTokens.add(nGramToken);
     }
-
-      for (String token: answerMap.keySet()
-           ) {
-        Token t = new Token(token,"",answerMap.get(token));
-          finalTokens.add(t);
-      }
-
     return finalTokens;
   }
 

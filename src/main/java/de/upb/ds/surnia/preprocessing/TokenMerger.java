@@ -20,37 +20,33 @@ public class TokenMerger {
    * @return List of tokens where the resource tokens are combined and linked.
    */
   public List<Token> integrateToken(List<Token> oldTokens, Token newToken) {
-    List<Token> linkedTokens = new ArrayList<>();
-    HashMap<String, Integer> posTags = new HashMap<>();
-    boolean appearanceFound = false;
-    boolean entityAdded = false;
-    for (Token token : oldTokens) {
-      if (newToken.getText().contains(token.getText()) && token.getUris().isEmpty()) {
-        if (!appearanceFound) {
-          appearanceFound = true;
-        }
-        if (posTags.containsKey(token.getType())) {
-          posTags.put(token.getType(), posTags.get(token.getType()) + 1);
-        } else {
-          posTags.put(token.getType(), 1);
-        }
-      } else {
-        if (!appearanceFound || entityAdded) {
-          linkedTokens.add(token);
-        } else {
-          if (appearanceFound && !entityAdded) {
-            entityAdded = true;
-            // if new token already has a POS-tag, we can assume that it is better
-            String posTag = newToken.getType() != null ?
-              newToken.getType() :
-              choosePosTag(posTags);
-            linkedTokens.add(new Token(newToken.getText(), posTag, newToken.getUris()));
-            linkedTokens.add(token);
+      List<Token> linkedTokens = new ArrayList<>();
+      HashMap<String, Integer> posTags = new HashMap<>();
+      boolean appearanceFound = false;
+      boolean entityAdded = false;
+      for (Token token : oldTokens) {
+          if (newToken.getText().toLowerCase().contains(token.getText())&& token.getUris().isEmpty()) {
+              if (!appearanceFound) {
+                  appearanceFound = true;
+              }
+              if (posTags.containsKey(token.getType())) {
+                  posTags.put(token.getType(), posTags.get(token.getType()) + 1);
+              } else {
+                  posTags.put(token.getType(), 1);
+              }
+              if (appearanceFound && !entityAdded) {
+                  entityAdded = true;
+                  // if new token already has a POS-tag, we can assume that it is better
+                  String posTag = newToken.getType() != null ? newToken.getType() : choosePosTag(posTags);
+                  linkedTokens.add(new Token(newToken.getText(), posTag, newToken.getUris()));
+              }
+          } else {
+              if (!appearanceFound || entityAdded) {
+                  linkedTokens.add(token);
+              }
           }
-        }
       }
-    }
-    return linkedTokens;
+      return linkedTokens;
   }
 
   /**

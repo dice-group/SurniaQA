@@ -81,7 +81,7 @@ public class QueryPatternMatcher {
    */
   private String rateQuery(QuestionProperties questionProperties, QueryTemplate queryTemplate) {
     String questionStartWord = questionProperties.getQuestionStart();
-    if (!Arrays.asList(queryTemplate.getQuestionStartWords()).contains(questionStartWord)) {
+    if (!Arrays.asList(queryTemplate.getQuestionStartWord()).contains(questionStartWord)) {
       logger.debug("Wrong question word");
       return null;
     }

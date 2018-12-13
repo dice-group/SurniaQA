@@ -12,8 +12,8 @@ public class QueryTemplate {
   @JsonProperty("sparqlParams")
   private String[] sparqlParams;
 
-  @JsonProperty("questionStartWords")
-  private String[] questionStartWords;
+  @JsonProperty("questionStartWord")
+  private String[] questionStartWord;
 
   @JsonProperty("resourceAmount")
   private int resourceAmount;
@@ -43,12 +43,12 @@ public class QueryTemplate {
     this.sparqlParams = sparqlParams;
   }
 
-  public String[] getQuestionStartWords() {
-    return questionStartWords;
+  public String[] getQuestionStartWord() {
+    return questionStartWord;
   }
 
-  public void setQuestionStartWords(String[] questionStartWords) {
-    this.questionStartWords = questionStartWords;
+  public void setQuestionStartWord(String[] questionStartWord) {
+    this.questionStartWord = questionStartWord;
   }
 
   public int getResourceAmount() {

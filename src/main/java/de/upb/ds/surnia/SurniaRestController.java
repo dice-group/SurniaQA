@@ -4,17 +4,17 @@ import com.github.jsonldjava.utils.JsonUtils;
 import de.upb.ds.surnia.preprocessing.model.Token;
 import de.upb.ds.surnia.preprocessing.tasks.AutoindexTask;
 import de.upb.ds.surnia.qa.QuestionAnswerer;
-
-import java.util.*;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-
 import org.aksw.qa.commons.datastructure.Question;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletResponse;
+import java.util.*;
 
 @RestController
 public class SurniaRestController {
