@@ -152,7 +152,7 @@
     "resourceAmount": 1,
     "ontologyAmount": 2,
     "sparqlParams": ["O1", "O2", "R1"],
-    "sparqlTemplate": "SELECT DISTINCT ?x WHERE {  ?y ?O2 ?R1 .  ?y ?O1 ?x . }",
+    "sparqlTemplate": "SELECT DISTINCT ?x WHERE {  ?y ?O1 ?R1 .  ?y ?O2 ?x . }",
     "exampleQuestions": [
       "VB PRP DT NNS O1 IN NNS O2 IN R1 ."
     ]

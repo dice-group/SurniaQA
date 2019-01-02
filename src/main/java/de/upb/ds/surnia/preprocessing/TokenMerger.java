@@ -25,7 +25,7 @@ public class TokenMerger {
       boolean appearanceFound = false;
       boolean entityAdded = false;
       for (Token token : oldTokens) {
-          if (newToken.getText().toLowerCase().contains(token.getText())&& token.getUris().isEmpty()) {
+          if (newToken.getText().contains(token.getText().toLowerCase())) {
               if (!appearanceFound) {
                   appearanceFound = true;
               }
@@ -68,4 +68,17 @@ public class TokenMerger {
     return posTag;
   }
 
+    /**
+     * The purpose of this method is to merge tokens to return a close to Natural language representation.
+     * E.g - The Token "Zlatan Ibrahimovic" after parsing from Stanford parser becomes (NP (NNP Zlatan) (NNP Ibrahimovic)))
+     * For the purpose of processing we need Zlatan Ibrahimovic as Single "NNP" Token.
+     *
+     * This method will particularly merge tokens of similar kind that occur in continuity
+     *
+     * @return
+     */
+  private List<Token> mergeTokens(List<Token> tokens){
+      // TODO: 18/12/2018 Loop over tokens , find tokkens with similar POS tags and Combine them, this will be required particularly for Tokens with type NNP
+      return null;
+  }
 }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.upb.ds.surnia.preprocessing.TokenMerger;
 import de.upb.ds.surnia.preprocessing.model.NGramEntryPosition;
 import de.upb.ds.surnia.preprocessing.model.NGramHierarchy;
+import de.upb.ds.surnia.preprocessing.model.NGrams;
 import de.upb.ds.surnia.preprocessing.model.Token;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -90,37 +91,40 @@ public class AutoindexTask implements TaskInterface {
    */
   private List<Token> produceTokens(String question) {
     Map<NGramEntryPosition, Set<String>> candidateMap = new HashMap<>();
-    NGramHierarchy nGramHierarchy = new NGramHierarchy(question);
     HashMap<String, Set<String>> answerMap = getAnswerMapFromAutoindex(question);
-
-    // first iteration: only add to candidateMap
-    for (String nGram : answerMap.keySet()) {
-      NGramEntryPosition entryPosition = nGramHierarchy.getPosition(nGram);
-      if (entryPosition != null) {
-        candidateMap.put(entryPosition, answerMap.get(nGram));
-      }
-    }
-
-    // second iteration: delete children whose parents have URIs
-    Map<NGramEntryPosition, Set<String>> prunedCandidateMap = new HashMap<>(candidateMap);
-    for (NGramEntryPosition parent : candidateMap.keySet()) {
-      for (NGramEntryPosition child : parent.getAllDescendants()) {
-        log.debug("{} has parent {}, deleting child", child, parent);
-        prunedCandidateMap.remove(child);
-      }
-    }
-
-    // Map n-gram hierarchy into list of tokens
-    List<Token> finalTokens = new ArrayList<>();
-    List<NGramEntryPosition> tmpKeyList = new ArrayList<>(prunedCandidateMap.keySet());
-    tmpKeyList.sort(Comparator.comparing(NGramEntryPosition::getPosition));
-    for (NGramEntryPosition entry : tmpKeyList) {
-      String nGram = nGramHierarchy.getNGram(entry);
-      Token nGramToken = new Token(nGram);
-      nGramToken.addUris(candidateMap.get(entry));
-      finalTokens.add(nGramToken);
-    }
-    return finalTokens;
+    NGrams nGrams = new NGrams(question, answerMap);
+    return nGrams.produceTokens();
+//    NGramHierarchy nGramHierarchy = new NGramHierarchy(question);
+//
+//
+//    // first iteration: only add to candidateMap
+//    for (String nGram : answerMap.keySet()) {
+//      NGramEntryPosition entryPosition = nGramHierarchy.getPosition(nGram);
+//      if (entryPosition != null) {
+//        candidateMap.put(entryPosition, answerMap.get(nGram));
+//      }
+//    }
+//
+//    // second iteration: delete children whose parents have URIs
+//    Map<NGramEntryPosition, Set<String>> prunedCandidateMap = new HashMap<>(candidateMap);
+//    for (NGramEntryPosition parent : candidateMap.keySet()) {
+//      for (NGramEntryPosition child : parent.getAllDescendants()) {
+//        log.debug("{} has parent {}, deleting child", child, parent);
+//        prunedCandidateMap.remove(child);
+//      }
+//    }
+//
+//    // Map n-gram hierarchy into list of tokens
+//    List<Token> finalTokens = new ArrayList<>();
+//    List<NGramEntryPosition> tmpKeyList = new ArrayList<>(prunedCandidateMap.keySet());
+//    tmpKeyList.sort(Comparator.comparing(NGramEntryPosition::getPosition));
+//    for (NGramEntryPosition entry : tmpKeyList) {
+//      String nGram = nGramHierarchy.getNGram(entry);
+//      Token nGramToken = new Token(nGram);
+//      nGramToken.addUris(candidateMap.get(entry));
+//      finalTokens.add(nGramToken);
+//    }
+//    return finalTokens;
   }
 
   /**

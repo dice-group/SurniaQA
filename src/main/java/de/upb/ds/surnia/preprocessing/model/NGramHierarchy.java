@@ -1,11 +1,15 @@
 package de.upb.ds.surnia.preprocessing.model;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.shingle.ShingleFilter;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.util.Version;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.*;
 
 /**
  * This class represents the n-gram hierarchy. For a given n-gram it represents a tree. The root of
@@ -23,11 +27,11 @@ public class NGramHierarchy {
    * @param nGrams already split n-gram
    */
   public NGramHierarchy(String[] nGrams) {
-    this.nGrams = new ArrayList<>();
-    for (int i = 0; i < nGrams.length; i++) {
-      nGrams[i] = nGrams[i].replaceAll("\\p{P}", "").toLowerCase();
-    }
-    Collections.addAll(this.nGrams, nGrams);
+      this.nGrams = new ArrayList();
+      for (int i = 0; i < nGrams.length; i++) {
+          nGrams[i] = nGrams[i].replaceAll("\\p{P}", "").toLowerCase();
+      }
+      Collections.addAll(this.nGrams, nGrams);
   }
 
   /**

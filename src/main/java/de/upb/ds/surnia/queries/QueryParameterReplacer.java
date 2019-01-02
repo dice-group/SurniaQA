@@ -165,6 +165,9 @@ public class QueryParameterReplacer {
         } else if (token.getUris().iterator().next().contains("ontology") && !resourceWanted) {
           usedTokens.add(token);
           return new ArrayList<>(token.getUris());
+        } else if (token.getUris().iterator().next().contains("property")) {
+          usedTokens.add(token);
+          return new ArrayList<>(token.getUris());
         } else {
           return null;
         }
