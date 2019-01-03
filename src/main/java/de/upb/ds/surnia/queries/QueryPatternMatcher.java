@@ -57,7 +57,7 @@ public class QueryPatternMatcher {
    */
   public List<ParameterizedSparqlString> findMatchingQueries(List<Token> questionTokens) {
     QuestionProperties questionProperties = new QuestionProperties(questionTokens);
-    logger.debug("{}", questionProperties);
+    logger.info("{}", questionProperties);
     LinkedList<ParameterizedSparqlString> possibleQueries = new LinkedList<>();
     for (QueryTemplate queryTemplate : queryTemplates) {
       String bestQuestionTemplate = rateQuery(questionProperties, queryTemplate);

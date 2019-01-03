@@ -78,7 +78,8 @@ public class TokenMerger {
      * @return
      */
   private List<Token> mergeTokens(List<Token> tokens){
-      // TODO: 18/12/2018 Loop over tokens , find tokkens with similar POS tags and Combine them, this will be required particularly for Tokens with type NNP
+      // TODO: 18/12/2018 Loop over tokens , find tokkens with similar POS tags and Combine them,
+      // TODO: this will be required particularly for Tokens with type NNP
       return null;
   }
 }

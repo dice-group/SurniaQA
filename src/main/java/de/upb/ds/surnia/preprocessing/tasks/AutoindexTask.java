@@ -4,18 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.upb.ds.surnia.preprocessing.TokenMerger;
 import de.upb.ds.surnia.preprocessing.model.NGramEntryPosition;
-import de.upb.ds.surnia.preprocessing.model.NGramHierarchy;
 import de.upb.ds.surnia.preprocessing.model.NGrams;
 import de.upb.ds.surnia.preprocessing.model.Token;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -27,6 +17,9 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.io.IOException;
+import java.util.*;
 
 /**
  * This Task-implementation builds onto previous tasks and tries to find URIs for the given
@@ -74,7 +67,7 @@ public class AutoindexTask implements TaskInterface {
   @Override
   public List<Token> processTokens(String question, List<Token> tokens) {
     List<Token> autoindexToken = produceTokens(question);
-    log.debug("Candidate Mapping Produced: {}", autoindexToken);
+    log.info("Candidate Mapping Produced: {}", autoindexToken);
     TokenMerger tokenMerger = new TokenMerger();
     List<Token> finalTokens = new ArrayList<>(tokens);
     for (Token token : autoindexToken) {
