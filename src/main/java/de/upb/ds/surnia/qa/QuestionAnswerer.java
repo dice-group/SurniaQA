@@ -4,14 +4,7 @@ import de.upb.ds.surnia.preprocessing.ProcessingPipeline;
 import de.upb.ds.surnia.preprocessing.model.Token;
 import de.upb.ds.surnia.qa.AnswerContainer.AnswerType;
 import de.upb.ds.surnia.queries.QueryPatternMatcher;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import org.apache.jena.query.ParameterizedSparqlString;
-import org.apache.jena.query.QueryExecution;
-import org.apache.jena.query.QueryExecutionFactory;
-import org.apache.jena.query.QuerySolution;
-import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.sparql.core.Var;
 import org.slf4j.Logger;
@@ -20,7 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Component
 public class QuestionAnswerer extends AbstractQuestionAnswerer {

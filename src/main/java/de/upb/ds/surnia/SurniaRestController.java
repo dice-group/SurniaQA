@@ -1,7 +1,6 @@
 package de.upb.ds.surnia;
 
 import com.github.jsonldjava.utils.JsonUtils;
-import de.upb.ds.surnia.preprocessing.model.Token;
 import de.upb.ds.surnia.preprocessing.tasks.AutoindexTask;
 import de.upb.ds.surnia.qa.QuestionAnswerer;
 import org.aksw.qa.commons.datastructure.Question;
@@ -15,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import java.util.Map;
 
 @RestController
 public class SurniaRestController {
@@ -58,34 +57,4 @@ public class SurniaRestController {
       return "JSON Error";
     }
   }
-
-  @RequestMapping(value = "/ask", method = RequestMethod.GET)
-  public String askQuestions(@RequestParam Map<String, String> params, HttpServletResponse response) {
-
-    String question = params.get("query");
-
-    List<Token> autoIndextokens = autoindexTask.processTokens(question, produceStandfordTestTokens());
-    Set<String> uri = null;
-    for (Token t : autoIndextokens
-    ) {
-      uri = t.getUris();
-      if (uri.size() > 0)
-        break;
-    }
-    String possibleURL = "";
-    for (Iterator<String> it = uri.iterator(); ((Iterator) it).hasNext(); ) {
-      possibleURL = it.next();
-    }
-    return possibleURL;
-  }
-
-  public List<Token> produceStandfordTestTokens() {
-    List<Token> stanfordTokensTest = new ArrayList<>();
-    stanfordTokensTest.add(new Token("What", "PWAV"));
-    stanfordTokensTest.add(new Token("is", "VAFIN"));
-    stanfordTokensTest.add(new Token("Soccer", "NE"));
-    stanfordTokensTest.add(new Token("?", "$."));
-    return stanfordTokensTest;
-  }
-
 }

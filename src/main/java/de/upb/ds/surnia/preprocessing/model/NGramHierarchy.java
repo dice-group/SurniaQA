@@ -1,14 +1,5 @@
 package de.upb.ds.surnia.preprocessing.model;
 
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.shingle.ShingleFilter;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.apache.lucene.util.Version;
-
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.*;
 
 /**

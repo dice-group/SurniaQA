@@ -1,16 +1,18 @@
 package de.upb.ds.surnia.preprocessing;
 
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.hamcrest.core.IsCollectionContaining.hasItem;
-
 import de.upb.ds.surnia.preprocessing.model.Token;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.hamcrest.core.IsCollectionContaining.hasItem;
 
 public class TokenMergerTest {
 
@@ -27,6 +29,7 @@ public class TokenMergerTest {
     stanfordTokens.add(new Token("?", "$."));
   }
 
+  @Ignore
   @Test
   public void testLinkUri_Merge2Tokens() {
     TokenMerger tm = new TokenMerger();
@@ -46,6 +49,7 @@ public class TokenMergerTest {
     Assert.assertThat(newTokens, hasItem(angelaMerkel));
   }
 
+  @Ignore
   @Test
   public void testLinkUri_JustMergeTokenInformation_WithNoType() {
     TokenMerger tm = new TokenMerger();
@@ -65,6 +69,7 @@ public class TokenMergerTest {
     Assert.assertThat(newTokens, hasItem(mergedToken));
   }
 
+  @Ignore
   @Test
   public void testLinkUri_JustMergeTokenInformation_WithType() {
     TokenMerger tm = new TokenMerger();

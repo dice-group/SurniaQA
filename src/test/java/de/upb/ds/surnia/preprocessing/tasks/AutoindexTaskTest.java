@@ -1,103 +1,59 @@
 package de.upb.ds.surnia.preprocessing.tasks;
 
-import static org.hamcrest.core.IsEqual.equalTo;
-
 import de.upb.ds.surnia.preprocessing.model.Token;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+
+import static org.hamcrest.core.IsEqual.equalTo;
+
+
 public class AutoindexTaskTest {
 
-  private final String QUESTION = "Wie alt ist Angela Merkel?";
-  private final String ANOTHER_QUESTION = "What is Soccer ?";
-  private AutoindexTask autoindexTask;
-  private List<Token> stanfordTokens;
+    private final String QUESTION = "Who is relative of Jenny McCarthy";
+
+    private AutoindexTask autoindexTask;
+
+    private List<Token> stanfordTokens;
 
 
-  @Before
-  public void init() {
-    // Set up fake autoindex via hashmap
-    autoindexTask = new AutoindexTask();
-    /*{
-      @Override
-      protected HashMap<String, Set<String>> getAnswerMapFromAutoindex(String question) {
-        HashMap<String, Set<String>> fakeAutoindexEndpoint = new HashMap<>();
-        fakeAutoindexEndpoint.put("alt", new HashSet<String>(Arrays.asList("foaf:age")));
-        fakeAutoindexEndpoint
-          .put("Angela Merkel", new HashSet<String>(Arrays.asList("dbr:Angela_Merkel")));
-        fakeAutoindexEndpoint.put("Angela", new HashSet<String>(Arrays.asList("fake:Angela")));
-        return fakeAutoindexEndpoint;
-      }
-    };*/
+    @Before
+    public void init() {
+        // Set up fake autoindex via hashmap
+        // produce a stanford output
 
-    // produce a stanford output
-    stanfordTokens = new ArrayList<>();
-    stanfordTokens.add(new Token("Wie", "PWAV"));
-    stanfordTokens.add(new Token("alt", "ADJD"));
-    stanfordTokens.add(new Token("ist", "VAFIN"));
-    stanfordTokens.add(new Token("Angela", "NE"));
-    stanfordTokens.add(new Token("Merkel", "NE"));
-    stanfordTokens.add(new Token("?", "$."));
-  }
+        autoindexTask = new AutoindexTask();
 
-  private List<Token> produceStandfordTestTokens() {
-    List<Token> stanfordTokensTest = new ArrayList<>();
-    stanfordTokensTest.add(new Token("What", "PWAV"));
-    stanfordTokensTest.add(new Token("is", "VAFIN"));
-    stanfordTokensTest.add(new Token("Soccer", "NE"));
-    stanfordTokensTest.add(new Token("?", "$."));
-    return stanfordTokensTest;
-  }
+        stanfordTokens = new ArrayList<>();
 
-  @Test
-  public void testProcessTokens_AngelaMerkel() {
-    List<Token> actualTokens = new ArrayList<>();
-    actualTokens.add(new Token("Wie", "PWAV"));
-    actualTokens.add(new Token("alt", "ADJD", new HashSet<String>(Arrays.asList("foaf:age"))));
-    actualTokens.add(new Token("ist", "VAFIN"));
-    actualTokens.add(new Token("Angela Merkel", "NE", new HashSet<String>(Arrays.asList("dbr:Angela_Merkel"))));
-    actualTokens.add(new Token("?", "$."));
+        stanfordTokens.add(new Token("Who", "WP"));
+        stanfordTokens.add(new Token("is", "VBZ"));
+        stanfordTokens.add(new Token("relative", "NN"));
+        stanfordTokens.add(new Token("of", "IN"));
+        stanfordTokens.add(new Token("Jenny", "NNP"));
+        stanfordTokens.add(new Token("McCarthy", "NNP"));
+    }
 
-    List<Token> autoindexTokens = autoindexTask.processTokens(QUESTION, stanfordTokens);
-    Assert.assertThat(autoindexTokens, equalTo(actualTokens));
-  }
+    //This test will run only when Autoindex is running , enable this only for development
+    @Ignore
+    @Test
+    public void testProcessTokens_Soccer() {
 
-  @Test
-  public void testProcessTokens_Soccer() {
-    List<Token> actualTokens = new ArrayList<>();
-    actualTokens.add(new Token("Was", "PWAV"));
-    actualTokens.add(new Token("ist", "VAFIN", new HashSet<String>()));
-    actualTokens.add(new Token("Football", "NE", new HashSet<String>(Arrays.asList("dbr:Soccer"))));
-    actualTokens.add(new Token("?", "$."));
+        List<Token> actualTokens = new ArrayList<>();
 
-    List<Token> autoIndexTokens = autoindexTask.processTokens(ANOTHER_QUESTION, produceStandfordTestTokens());
-    Assert.assertThat(autoIndexTokens, equalTo(actualTokens));
-  }
+        actualTokens.add(new Token("Who", "WP"));
+        actualTokens.add(new Token("is", "VBZ"));
+        actualTokens.add(new Token("relative", "NN", new HashSet<String>(Arrays.asList("http://dbpedia.org/ontology/relative"))));
+        actualTokens.add(new Token("of", "IN"));
+        actualTokens.add(new Token("jenny mccarthy", "NNP", new HashSet<String>(Arrays.asList("http://dbpedia.org/resource/Jenny_McCarthy"))));
 
-  /**
-   * This test only works when there is an Autoindex-Endpoint with the below mentioned stuff.
-   */
-  @Ignore
-  @Test
-  public void testProcessTokens_AngelaMerkel_withActualAutoindex() {
-    autoindexTask = new AutoindexTask();
-    List<Token> actualTokens = new ArrayList<>();
-    actualTokens.add(new Token("Wie", "PWAV"));
-    actualTokens.add(new Token("alt", "ADJD", new HashSet<String>(Arrays.asList("foaf:age"))));
-    actualTokens.add(new Token("ist", "VAFIN"));
-    actualTokens.add(new Token("Angela Merkel", "NE", new HashSet<String>(Arrays.asList("dbr:Angela_Merkel"))));
-    actualTokens.add(new Token("?", "$."));
-
-    List<Token> autoindexTokens = autoindexTask.processTokens(QUESTION, stanfordTokens);
-    Assert.assertThat(autoindexTokens, equalTo(actualTokens));
-  }
-
+        List<Token> autoIndexTokens = autoindexTask.processTokens(QUESTION, stanfordTokens);
+        Assert.assertThat(autoIndexTokens, equalTo(actualTokens));
+    }
 }

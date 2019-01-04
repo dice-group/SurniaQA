@@ -1,6 +1,7 @@
 package de.upb.ds.surnia.queries;
 
 import de.upb.ds.surnia.preprocessing.model.Token;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;

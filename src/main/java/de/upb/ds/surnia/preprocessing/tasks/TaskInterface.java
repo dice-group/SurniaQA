@@ -1,6 +1,7 @@
 package de.upb.ds.surnia.preprocessing.tasks;
 
 import de.upb.ds.surnia.preprocessing.model.Token;
+
 import java.util.List;
 
 /**

@@ -31,6 +31,8 @@ import java.util.*;
 @Component
 public class AutoindexTask implements TaskInterface {
 
+
+
   /**
    * The default URL for the Autoindex-endpoint.
    */

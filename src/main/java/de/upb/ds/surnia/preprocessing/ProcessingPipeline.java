@@ -4,11 +4,12 @@ import de.upb.ds.surnia.preprocessing.model.Token;
 import de.upb.ds.surnia.preprocessing.tasks.AutoindexTask;
 import de.upb.ds.surnia.preprocessing.tasks.StanfordNERTask;
 import de.upb.ds.surnia.preprocessing.tasks.TaskInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public class ProcessingPipeline {
