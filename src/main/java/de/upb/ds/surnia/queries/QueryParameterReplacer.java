@@ -1,11 +1,13 @@
 package de.upb.ds.surnia.queries;
 
-import de.upb.ds.surnia.preprocessing.Token;
+import de.upb.ds.surnia.preprocessing.model.Token;
+import org.apache.jena.query.ParameterizedSparqlString;
+import org.apache.jena.rdf.model.ResourceFactory;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.jena.query.ParameterizedSparqlString;
-import org.apache.jena.rdf.model.ResourceFactory;
 
 public class QueryParameterReplacer {
 
@@ -13,24 +15,28 @@ public class QueryParameterReplacer {
   private List<Token> tokens;
   private List<Token> usedTokens;
   private String queryString;
-  private String exampleQuestion;
-  private HashMap<String, List<String>> possibleReplacements;
+  private String bestQuestionTemplate;
+  private HashMap<String, List<String>> possibleParamInputs;
 
   /**
    * Create a replacer for all combinations of the query with the question.
-   * @param questionTokens Preprocessing result of the question.
-   * @param query Query with the parameters to be replaced.
+   *
+   * @param questionTokens Pre-processing result of the question.
+   * @param bestQuestionTemplate the best fitting template for the given question
+   * @param queryTemplate QueryTemplate with the parameters to be replaced.
    */
-  public QueryParameterReplacer(List<Token> questionTokens, String bestExampleQuestion, Query query) {
-    queryString = query.sparqlTemplate;
+  public QueryParameterReplacer(List<Token> questionTokens, String bestQuestionTemplate,
+    QueryTemplate queryTemplate) {
+    queryString = queryTemplate.getSparqlTemplate();
     tokens = questionTokens;
-    params = query.sparqlParams;
+    params = queryTemplate.getSparqlParams();
     usedTokens = new LinkedList<>();
-    exampleQuestion = bestExampleQuestion;
+    this.bestQuestionTemplate = bestQuestionTemplate;
   }
 
   /**
    * Generate all replacement combinations.
+   *
    * @return All possible query replacements.
    */
   public List<ParameterizedSparqlString> getQueriesWithReplacedParameters() {
@@ -46,18 +52,28 @@ public class QueryParameterReplacer {
     return queries;
   }
 
+  /**
+   * Produces all possible combinations of parameter replacements. E.g. for 3 parameter with 2 URIs
+   * each, it will produce 8 combinations. Each list element contains 1 combination.
+   */
   private List<HashMap<String, String>> generateParameterReplacementCombinations() {
     List<HashMap<String, String>> combinations = new LinkedList<>();
-    possibleReplacements = new HashMap<>();
+    possibleParamInputs = new HashMap<>();
     for (String param : params) {
       List<String> uris = getUrisFromClosestToken(param);
-      possibleReplacements.put(param, uris);
+      possibleParamInputs.put(param, uris);
     }
+
+    /* Produce a array which holds the information which combination we should use now.
+     * I.e. for three parameters A,B,C (this order) and the counter-array [2,0,4],
+     * it would specify that the 3rd URI for A, the 1st URI for B and the 5th URI for C should be
+     * used for this combination.
+     */
     int[] counter = new int[params.length];
     for (int i = 0; i < counter.length; i++) {
       counter[i] = 0;
     }
-    while (!isCounterFinished(counter)) {
+    while (!allCombinationsProduced(counter)) {
       combinations.add(createCombination(counter));
       increaseCounterArray(counter, 0);
     }
@@ -66,8 +82,8 @@ public class QueryParameterReplacer {
   }
 
   private void increaseCounterArray(int[] counter, int i) {
-    int l = possibleReplacements.get(params[i]).size() - 1;
-    if (counter[i] < l) {
+    int length = possibleParamInputs.get(params[i]).size() - 1;
+    if (counter[i] < length) {
       counter[i]++;
     } else if (i < counter.length - 1) {
       counter[i] = 0;
@@ -75,45 +91,56 @@ public class QueryParameterReplacer {
     }
   }
 
-  private boolean isCounterFinished(int[] counter) {
+  private boolean allCombinationsProduced(int[] counter) {
     for (int i = 0; i < counter.length; i++) {
-      if (counter[i] < (possibleReplacements.get(params[i]).size() - 1)) {
+      if (counter[i] < (possibleParamInputs.get(params[i]).size() - 1)) {
         return false;
       }
     }
     return true;
   }
 
-  private HashMap<String, String> createCombination (int[] counter) {
+  private HashMap<String, String> createCombination(int[] counter) {
     HashMap<String, String> combination = new HashMap<>();
     for (int i = 0; i < params.length; i++) {
       String param = params[i];
-      String uri = possibleReplacements.get(param).get(counter[i]);
+      String uri = possibleParamInputs.get(param).get(counter[i]);
       combination.put(param, uri);
     }
     return combination;
   }
 
+  /**
+   * Searches for URIs in tokens close to the given POS-Tag and returns them. The given parameter is
+   * the parameter for the SPARQL-query.
+   *
+   * @param param POS-Tag that indicates where we should start the search in the question-template
+   * @return List of URIs in a token that is close to the token we wanted it for
+   */
   private List<String> getUrisFromClosestToken(String param) {
-    int p = 0;
     boolean resourceWanted = param.charAt(0) == 'R';
-    for (String s : exampleQuestion.split(" ")) {
-      p++;
-      if (s.equalsIgnoreCase(param)) {
+
+    // Get position of param in question template
+    int pos = 0;
+    for (String posTag : bestQuestionTemplate.split(" ")) {
+      if (posTag.equalsIgnoreCase(param)) {
         break;
       }
+      pos++;
     }
-    for (int d = 0; d < tokens.size(); d++) {
-      int iL = p - d;
-      int iR = p + d;
-      if (iL >= 0 && iL < tokens.size()) {
-        List<String> uris = checkToken(tokens.get(iL), resourceWanted);
+
+    // Iterate over the tokens in both directions until you find a token with URIs
+    for (int distance = 0; distance < tokens.size(); distance++) {
+      int leftPos = pos - distance;
+      int rightPos = pos + distance;
+      if (leftPos >= 0 && leftPos < tokens.size()) {
+        List<String> uris = getUrisForToken(tokens.get(leftPos), resourceWanted);
         if (uris != null) {
           return uris;
         }
       }
-      if (iR < tokens.size()) {
-        List<String> uris = checkToken(tokens.get(iR), resourceWanted);
+      if (rightPos < tokens.size()) {
+        List<String> uris = getUrisForToken(tokens.get(rightPos), resourceWanted);
         if (uris != null) {
           return uris;
         }
@@ -122,15 +149,26 @@ public class QueryParameterReplacer {
     return null;
   }
 
-  private List<String> checkToken (Token token, boolean resourceWanted) {
+  /**
+   * Returns a list of URIs for the given token. For this, it is considered if we want a resource or
+   * not.
+   *
+   * @param token token to be inspected for URIs
+   * @param resourceWanted true if we want a Ressource as URI
+   * @return list of URIs extracted from the given token
+   */
+  private List<String> getUrisForToken(Token token, boolean resourceWanted) {
     if (!usedTokens.contains(token)) {
-      if (token.getUris() != null) {
-        if (token.getUris().get(0).contains("resource") && resourceWanted) {
+      if (!token.getUris().isEmpty()) {
+        if (token.getUris().iterator().next().contains("resource") && resourceWanted) {
           usedTokens.add(token);
-          return token.getUris();
-        } else if (token.getUris().get(0).contains("ontology") && !resourceWanted) {
+          return new ArrayList<>(token.getUris());
+        } else if (token.getUris().iterator().next().contains("ontology") && !resourceWanted) {
           usedTokens.add(token);
-          return token.getUris();
+          return new ArrayList<>(token.getUris());
+        } else if (token.getUris().iterator().next().contains("property")) {
+          usedTokens.add(token);
+          return new ArrayList<>(token.getUris());
         } else {
           return null;
         }

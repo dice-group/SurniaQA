@@ -1,35 +1,32 @@
 package de.upb.ds.surnia.qa;
 
 import de.upb.ds.surnia.preprocessing.ProcessingPipeline;
-import de.upb.ds.surnia.preprocessing.Token;
+import de.upb.ds.surnia.preprocessing.model.Token;
 import de.upb.ds.surnia.qa.AnswerContainer.AnswerType;
 import de.upb.ds.surnia.queries.QueryPatternMatcher;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import org.aksw.qa.commons.datastructure.Question;
-import org.apache.jena.query.ParameterizedSparqlString;
-import org.apache.jena.query.QueryExecution;
-import org.apache.jena.query.QueryExecutionFactory;
-import org.apache.jena.query.QuerySolution;
-import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.sparql.core.Var;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+@Component
 public class QuestionAnswerer extends AbstractQuestionAnswerer {
 
-  static final Logger logger = LoggerFactory.getLogger(QuestionAnswerer.class);
+  private static final Logger logger = LoggerFactory.getLogger(QuestionAnswerer.class);
 
   private ProcessingPipeline preprocessingPipeline;
   private QueryPatternMatcher queryPatternMatcher;
+
+  @Autowired
+  private Environment env;
 
   public QuestionAnswerer() {
     preprocessingPipeline = new ProcessingPipeline();
@@ -38,22 +35,15 @@ public class QuestionAnswerer extends AbstractQuestionAnswerer {
 
   @Override
   public AnswerContainer retrieveAnswers(String question, String lang) {
-    // Analyze question with CoreNLP, FOX and OntologyIndex
-    List<Token> tokens = null;
-    try {
-      tokens = preprocessingPipeline.processQuestion(question);
-    } catch (IOException e) {
-      logger.error("Error while processing question", e);
-    }
+    // Analyze question with all the Tasks in the PreprocessingPipeline
+    List<Token> tokens = preprocessingPipeline.processQuestion(question);
 
-    // Get a list with all queries rated above the threshold for the question and query DBpedia
+    // Get a list with all queries rated above the threshold for the question
     List<ParameterizedSparqlString> queries = queryPatternMatcher.findMatchingQueries(tokens);
     AnswerContainer answer = null;
     if (queries.size() > 0) {
       for (ParameterizedSparqlString query : queries) {
-        logger.info("Query: " + query.toString());
-      }
-      for (ParameterizedSparqlString query : queries) {
+        logger.info("QueryTemplate: " + query.toString());
         answer = getAnswerForQuery(query);
         if (answer != null) {
           break;
@@ -77,7 +67,7 @@ public class QuestionAnswerer extends AbstractQuestionAnswerer {
   private AnswerContainer getAnswerForQuery(ParameterizedSparqlString query) {
     String queryStringRepresentation = query.toString();
     if (queryStringRepresentation.contains("SELECT")) {
-      Set<RDFNode> results = selectQueryDBpedia(query);
+      Set<RDFNode> results = querySPARQLService(query);
       if (results != null) {
         AnswerContainer result = new AnswerContainer();
         Set<String> answerSet = new HashSet<String>();
@@ -138,7 +128,7 @@ public class QuestionAnswerer extends AbstractQuestionAnswerer {
       result.setSparqlQuery(query.toString());
       result.setType(AnswerType.BOOLEAN);
       Set<String> answerSet = new HashSet<String>();
-      answerSet.add(String.valueOf(askQueryDBpedia(query)));
+      answerSet.add(String.valueOf(queryServer(query)));
       result.setAnswers(answerSet);
       return result;
     }
@@ -146,14 +136,15 @@ public class QuestionAnswerer extends AbstractQuestionAnswerer {
   }
 
   /**
-   * Run a SPARQL select query against the DBpedia endpoint.
+   * Run a SPARQL select query against the FUSEKI endpoint.
    *
    * @param queryString SPARQL query with set parameters.
    */
-  private Set<RDFNode> selectQueryDBpedia(ParameterizedSparqlString queryString) {
+  private Set<RDFNode> querySPARQLService(ParameterizedSparqlString queryString) {
     String queryStringRepresentation = queryString.toString();
-    logger.info("Query DBpedia with: " + queryStringRepresentation);
-    QueryExecution execution = QueryExecutionFactory.sparqlService("http://dbpedia.org/sparql", queryString.asQuery());
+    logger.info("Querying SPARQL endpoint with: " + queryStringRepresentation);
+    QueryExecution execution = QueryExecutionFactory
+      .sparqlService(env.getProperty("sparql.endpoint"), queryString.asQuery());
     ResultSet resultSet = execution.execSelect();
     List<Var> projectVars = queryString.asQuery().getProjectVars();
     String projectionVar;
@@ -177,10 +168,11 @@ public class QuestionAnswerer extends AbstractQuestionAnswerer {
     }
   }
 
-  private boolean askQueryDBpedia(ParameterizedSparqlString queryString) {
+  private boolean queryServer(ParameterizedSparqlString queryString) {
     String queryStringRepresentation = queryString.toString();
-    logger.info("Query DBpedia with: " + queryStringRepresentation);
-    QueryExecution execution = QueryExecutionFactory.sparqlService("http://dbpedia.org/sparql", queryString.asQuery());
+    logger.info("Query SPARQL endpoint with: " + queryStringRepresentation);
+    QueryExecution execution = QueryExecutionFactory
+      .sparqlService(env.getProperty("sparql.endpoint"), queryString.asQuery());
     boolean result = execution.execAsk();
     logger.info("Result: " + result);
     return result;

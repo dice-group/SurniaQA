@@ -1,14 +1,14 @@
 package de.upb.ds.surnia.gerbil;
 
+import org.aksw.qa.commons.datastructure.Question;
+import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
-import org.aksw.qa.commons.datastructure.Question;
-import org.aksw.qa.commons.load.json.QaldJson;
-import org.json.simple.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class GerbilResponseBuilder {
 
@@ -30,13 +30,9 @@ public class GerbilResponseBuilder {
     this.answers = new Vector<>();
   }
 
-  public GerbilResponseBuilder setId(final String ques) {
-    this.id = "1";
-    return this;
-  }
-
   /**
    * Setter to construct add a question with a given language.
+   *
    * @param q Question object.
    * @param lang Language of the the question.
    * @return Updated response builder.
@@ -49,13 +45,9 @@ public class GerbilResponseBuilder {
     return this;
   }
 
-  public GerbilResponseBuilder setQuery(final String query) {
-    this.query.put("sparql", query);
-    return this;
-  }
-
   /**
    * Setter for the answer vector.
+   *
    * @param q Question object.
    */
   public void setAnswerVec(final Question q) {
@@ -65,20 +57,30 @@ public class GerbilResponseBuilder {
     }
   }
 
-  public void setAnswertype(final String answertype) {
-    this.answertype = answertype;
-  }
-
   public String getId() {
     return this.id;
+  }
+
+  public GerbilResponseBuilder setId(final String ques) {
+    this.id = "1";
+    return this;
   }
 
   public String getAnswertype() {
     return this.answertype;
   }
 
+  public void setAnswertype(final String answertype) {
+    this.answertype = answertype;
+  }
+
   public Map<String, String> getQuery() {
     return this.query;
+  }
+
+  public GerbilResponseBuilder setQuery(final String query) {
+    this.query.put("sparql", query);
+    return this;
   }
 
   public Vector<Map<String, String>> getQuestion() {
@@ -92,7 +94,7 @@ public class GerbilResponseBuilder {
   @Override
   public String toString() {
     return "\n ID :" + id + "\n Answertype: " + answertype + "\n Query: " + Objects.toString(query)
-        + "\n Question: " + Objects.toString(question) + "\n Answers: " + Objects.toString(answers);
+      + "\n Question: " + Objects.toString(question) + "\n Answers: " + Objects.toString(answers);
   }
 
 }

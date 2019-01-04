@@ -2,70 +2,74 @@ package de.upb.ds.surnia.queries;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.upb.ds.surnia.preprocessing.Token;
+import de.upb.ds.surnia.preprocessing.model.Token;
+import org.apache.jena.query.ParameterizedSparqlString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.jena.query.ParameterizedSparqlString;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class QueryPatternMatcher {
 
-  static final Logger logger = LoggerFactory.getLogger(QueryPatternMatcher.class);
-
   public static final float QUERY_RANKING_THRESHOlD = 0.5f;
-
-  private List<Query> queries;
+  static final Logger logger = LoggerFactory.getLogger(QueryPatternMatcher.class);
+  private List<QueryTemplate> queryTemplates;
 
   /**
-   * Parses all queries from a given file.
-   * @param fileName Name of the query file.
+   * Parses all queryTemplates from a given file.
+   *
+   * @param queryTemplatesFileName Name of the query file.
    */
-  public QueryPatternMatcher(String fileName) {
-    queries = new LinkedList<>();
+  public QueryPatternMatcher(String queryTemplatesFileName) {
+    queryTemplates = new LinkedList<>();
     try {
-      // Read all prepared queries from the JSON file.
-      String file = getClass().getClassLoader().getResource(fileName).getFile();
-      BufferedReader reader = new BufferedReader(new FileReader(file));
+      // Read all prepared queryTemplates from the JSON file.
+      String queryTemplatesFile = getClass().getClassLoader().getResource(queryTemplatesFileName)
+        .getFile();
+      BufferedReader queryTemplateFileReader = new BufferedReader(
+        new FileReader(queryTemplatesFile));
       String line;
-      String jsonString = "";
-      while ((line = reader.readLine()) != null) {
-        jsonString += line;
+      StringBuilder jsonStringBuilder = new StringBuilder();
+      while ((line = queryTemplateFileReader.readLine()) != null) {
+        jsonStringBuilder.append(line);
       }
-      if (jsonString.length() > 0) {
+      if (jsonStringBuilder.length() > 0) {
         ObjectMapper mapper = new ObjectMapper();
-        queries = mapper.readValue(jsonString, new TypeReference<ArrayList<Query>>() {
-        });
+        queryTemplates = mapper
+          .readValue(jsonStringBuilder.toString(), new TypeReference<ArrayList<QueryTemplate>>() {
+          });
       }
-      reader.close();
+      queryTemplateFileReader.close();
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error("{}", e.getLocalizedMessage());
     }
   }
 
   /**
-   * Find all queries that were rated above the threshold for the given question.
+   * Find all queryTemplates that were rated above the threshold for the given question.
    *
-   * @param questionTokens Tokens of the question with the analysis of the preprocessing pipeline.
-   * @return A list with all parameterized SPARQL queries with a good rating.
+   * @param questionTokens Tokens of the question with the analysis of the pre-processing pipeline.
+   * @return A list with all parameterized SPARQL queryTemplates with a good rating.
    */
   public List<ParameterizedSparqlString> findMatchingQueries(List<Token> questionTokens) {
     QuestionProperties questionProperties = new QuestionProperties(questionTokens);
-    logger.info(questionProperties.toString());
+    logger.info("{}", questionProperties);
     LinkedList<ParameterizedSparqlString> possibleQueries = new LinkedList<>();
-    for (Query query : queries) {
-      String bestExampleQuestion = rateQuery(questionProperties, query);
-      if (bestExampleQuestion != null) {
-        QueryParameterReplacer queryParameterReplacer;
-        queryParameterReplacer = new QueryParameterReplacer(questionTokens, bestExampleQuestion, query);
+    for (QueryTemplate queryTemplate : queryTemplates) {
+      String bestQuestionTemplate = rateQuery(questionProperties, queryTemplate);
+      if (bestQuestionTemplate != null) {
+        QueryParameterReplacer queryParameterReplacer = new QueryParameterReplacer(questionTokens,
+          bestQuestionTemplate,
+          queryTemplate);
         possibleQueries.addAll(queryParameterReplacer.getQueriesWithReplacedParameters());
       }
     }
-    logger.info("Query amount: " + possibleQueries.size());
+    logger.debug("QueryTemplate amount: {}", possibleQueries.size());
     return possibleQueries;
   }
 
@@ -73,43 +77,44 @@ public class QueryPatternMatcher {
    * Rate a query according to the properties of the given question.
    *
    * @param questionProperties Analyzed properties of the input question.
-   * @param query              A query from the prepared query set.
+   * @param queryTemplate A query template from the prepared query set.
    * @return A ranking for the query regarding the question between 0 and 1.
    */
-  private String rateQuery(QuestionProperties questionProperties, Query query) {
-    String questionStartWord = questionProperties.questionStart.toUpperCase();
-    if (!Arrays.asList(query.questionStartWord).contains(questionStartWord)) {
-      logger.info("Wrong question word");
+  private String rateQuery(QuestionProperties questionProperties, QueryTemplate queryTemplate) {
+    String questionStartWord = questionProperties.getQuestionStart();
+    if (!Arrays.asList(queryTemplate.getQuestionStartWord()).contains(questionStartWord)) {
+      logger.debug("Wrong question word");
       return null;
     }
-    if (query.cotainsSuperlative && !questionProperties.containsSuperlative) {
-      logger.info("Inconsistent superlative");
+    if (queryTemplate.containsSuperlative() && !questionProperties.containsSuperlative()) {
+      logger.debug("Inconsistent superlative");
       return null;
     }
-    if (query.resourceAmount > questionProperties.resourceAmount) {
-      logger.info("Not enough properties");
-      return null;
-    }
-    if (query.ontologyAmount > questionProperties.ontologyAmount) {
-      logger.info("Not enough ontologies");
-      return null;
-    }
+    // Commented out for now, as these conditions will never be met with the new implementation of tasks.
+//    if (query.resourceAmount > questionProperties.resourceAmount) {
+//      logger.info("Not enough properties");
+//      return null;
+//    }
+//    if (query.ontologyAmount > questionProperties.ontologyAmount) {
+//      logger.info("Not enough ontologies");
+//      return null;
+//    }
+
     double max = 0.0f;
-    String question = "";
-    for (String exampleQuestions : query.exampleQuestions) {
-      String s1 = exampleQuestions;
-      String s2 = questionProperties.representationForm;
-      double similarity = stringSimilarity(s1, s2);
+    String bestFitQuestion = "";
+    for (String questionTemplate : queryTemplate.getExampleQuestions()) {
+      double similarity = stringSimilarity(questionTemplate,
+        questionProperties.getRepresentationForm());
       if (similarity > max) {
         max = similarity;
-        question = s1;
+        bestFitQuestion = questionTemplate;
       }
     }
     if (max >= QUERY_RANKING_THRESHOlD) {
-      logger.info(question + " - " + questionProperties.representationForm + ": " + max);
-      return question;
+      logger.info("{} - {}: {}", bestFitQuestion, questionProperties.getRepresentationForm(), max);
+      return bestFitQuestion;
     } else {
-      logger.info("Similarity too low");
+      logger.warn("Similarity too low. Maximum is only {}", max);
       return null;
     }
   }

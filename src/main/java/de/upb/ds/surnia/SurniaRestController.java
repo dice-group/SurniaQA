@@ -1,32 +1,39 @@
 package de.upb.ds.surnia;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.github.jsonldjava.utils.JsonUtils;
-import de.upb.ds.surnia.gerbil.GerbilFinalResponse;
+import de.upb.ds.surnia.preprocessing.tasks.AutoindexTask;
 import de.upb.ds.surnia.qa.QuestionAnswerer;
-import java.util.Map;
-import javax.servlet.http.HttpServletResponse;
 import org.aksw.qa.commons.datastructure.Question;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 @RestController
 public class SurniaRestController {
 
   static Logger logger = LoggerFactory.getLogger(SurniaRestController.class);
 
-  private QuestionAnswerer qa = new QuestionAnswerer();
+  @Autowired
+  private QuestionAnswerer qa;
+
+  private final AutoindexTask autoindexTask;
+
+  public SurniaRestController(AutoindexTask autoindexTask) {
+    this.autoindexTask = autoindexTask;
+  }
 
   /**
    * Endpoint for answering a question with a QALD JSON.
-   * @param params Params containing the question and the language.
+   *
+   * @param params   Params containing the question and the language.
    * @param response Response object.
    * @return Answer to the question as a QALD JSON.
    */
@@ -50,5 +57,4 @@ public class SurniaRestController {
       return "JSON Error";
     }
   }
-
 }

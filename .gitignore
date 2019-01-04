@@ -178,3 +178,8 @@ typings/
 
 # dotenv environment
 .env
+*.iml
+
+#Project specific unwanted files
+/elasticsearch/
+*.ipr

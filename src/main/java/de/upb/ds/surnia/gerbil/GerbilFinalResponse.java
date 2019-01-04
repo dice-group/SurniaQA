@@ -1,14 +1,15 @@
 package de.upb.ds.surnia.gerbil;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
 import org.aksw.qa.commons.datastructure.Question;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 public class GerbilFinalResponse {
+
   private Logger log = LoggerFactory.getLogger(GerbilFinalResponse.class);
   private List<GerbilResponseBuilder> questions;
 
@@ -18,6 +19,7 @@ public class GerbilFinalResponse {
 
   /**
    * Add a question.
+   *
    * @param answer Answered question.
    * @param lang Language of the question.
    * @return Answered question as a GerbilFinalResponse.
@@ -37,6 +39,7 @@ public class GerbilFinalResponse {
 
   /**
    * Getter for all Questions.
+   *
    * @return List of questions.
    */
   public List<GerbilResponseBuilder> getQuestions() {
