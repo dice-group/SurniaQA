@@ -16,13 +16,22 @@ import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.sparql.core.Var;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
+
+@Component
 public class QuestionAnswerer extends AbstractQuestionAnswerer {
 
   private static final Logger logger = LoggerFactory.getLogger(QuestionAnswerer.class);
 
   private ProcessingPipeline preprocessingPipeline;
   private QueryPatternMatcher queryPatternMatcher;
+
+  @Autowired
+  private Environment env;
 
   public QuestionAnswerer() {
     preprocessingPipeline = new ProcessingPipeline();
@@ -34,7 +43,7 @@ public class QuestionAnswerer extends AbstractQuestionAnswerer {
     // Analyze question with all the Tasks in the PreprocessingPipeline
     List<Token> tokens = preprocessingPipeline.processQuestion(question);
 
-    // Get a list with all queries rated above the threshold for the question and query DBpedia
+    // Get a list with all queries rated above the threshold for the question
     List<ParameterizedSparqlString> queries = queryPatternMatcher.findMatchingQueries(tokens);
     AnswerContainer answer = null;
     if (queries.size() > 0) {
@@ -60,11 +69,10 @@ public class QuestionAnswerer extends AbstractQuestionAnswerer {
     return answer;
   }
 
-  // TODO: 18/11/2018 <S> Implementation of this method will be changed and DBPedia Will be decoupled
   private AnswerContainer getAnswerForQuery(ParameterizedSparqlString query) {
     String queryStringRepresentation = query.toString();
     if (queryStringRepresentation.contains("SELECT")) {
-      Set<RDFNode> results = selectQueryDBpedia(query);
+      Set<RDFNode> results = querySPARQLService(query);
       if (results != null) {
         AnswerContainer result = new AnswerContainer();
         Set<String> answerSet = new HashSet<String>();
@@ -125,7 +133,7 @@ public class QuestionAnswerer extends AbstractQuestionAnswerer {
       result.setSparqlQuery(query.toString());
       result.setType(AnswerType.BOOLEAN);
       Set<String> answerSet = new HashSet<String>();
-      answerSet.add(String.valueOf(askQueryDBpedia(query)));
+      answerSet.add(String.valueOf(queryServer(query)));
       result.setAnswers(answerSet);
       return result;
     }
@@ -133,15 +141,15 @@ public class QuestionAnswerer extends AbstractQuestionAnswerer {
   }
 
   /**
-   * Run a SPARQL select query against the DBpedia endpoint.
+   * Run a SPARQL select query against the FUSEKI endpoint.
    *
    * @param queryString SPARQL query with set parameters.
    */
-  private Set<RDFNode> selectQueryDBpedia(ParameterizedSparqlString queryString) {
+  private Set<RDFNode> querySPARQLService(ParameterizedSparqlString queryString) {
     String queryStringRepresentation = queryString.toString();
-    logger.info("Query DBpedia with: " + queryStringRepresentation);
+    logger.info("Querying SPARQL endpoint with: " + queryStringRepresentation);
     QueryExecution execution = QueryExecutionFactory
-      .sparqlService("http://dbpedia.org/sparql", queryString.asQuery());
+      .sparqlService(env.getProperty("sparql.endpoint"), queryString.asQuery());
     ResultSet resultSet = execution.execSelect();
     List<Var> projectVars = queryString.asQuery().getProjectVars();
     String projectionVar;
@@ -165,11 +173,11 @@ public class QuestionAnswerer extends AbstractQuestionAnswerer {
     }
   }
 
-  private boolean askQueryDBpedia(ParameterizedSparqlString queryString) {
+  private boolean queryServer(ParameterizedSparqlString queryString) {
     String queryStringRepresentation = queryString.toString();
-    logger.info("Query DBpedia with: " + queryStringRepresentation);
+    logger.info("Query SPARQL endpoint with: " + queryStringRepresentation);
     QueryExecution execution = QueryExecutionFactory
-      .sparqlService("http://dbpedia.org/sparql", queryString.asQuery());
+      .sparqlService(env.getProperty("sparql.endpoint"), queryString.asQuery());
     boolean result = execution.execAsk();
     logger.info("Result: " + result);
     return result;
