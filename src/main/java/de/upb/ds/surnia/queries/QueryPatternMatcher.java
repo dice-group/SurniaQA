@@ -66,7 +66,9 @@ public class QueryPatternMatcher {
         QueryParameterReplacer queryParameterReplacer = new QueryParameterReplacer(questionTokens,
           bestQuestionTemplate,
           queryTemplate);
-        possibleQueries.addAll(queryParameterReplacer.getQueriesWithReplacedParameters());
+        List<ParameterizedSparqlString> queriesWithReplacedParameters = queryParameterReplacer.getQueriesWithReplacedParameters();
+        if (null != queriesWithReplacedParameters)
+          possibleQueries.addAll(queriesWithReplacedParameters);
       }
     }
     logger.debug("QueryTemplate amount: {}", possibleQueries.size());
