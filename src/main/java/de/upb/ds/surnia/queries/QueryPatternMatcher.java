@@ -9,10 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class QueryPatternMatcher {
 
@@ -56,19 +53,25 @@ public class QueryPatternMatcher {
    * @param questionTokens Tokens of the question with the analysis of the pre-processing pipeline.
    * @return A list with all parameterized SPARQL queryTemplates with a good rating.
    */
-  public List<ParameterizedSparqlString> findMatchingQueries(List<Token> questionTokens) {
+  public Map<Float, List<ParameterizedSparqlString>> findMatchingQueries(List<Token> questionTokens) {
+    float bufferRanking = 0.000f; // This is used to break tie between queries; Breaking tie is necessary to process all queries
     QuestionProperties questionProperties = new QuestionProperties(questionTokens);
     logger.info("{}", questionProperties);
-    LinkedList<ParameterizedSparqlString> possibleQueries = new LinkedList<>();
+    Map<Float, List<ParameterizedSparqlString>> possibleQueries = new TreeMap<>(Collections.reverseOrder());
     for (QueryTemplate queryTemplate : queryTemplates) {
-      String bestQuestionTemplate = rateQuery(questionProperties, queryTemplate);
-      if (bestQuestionTemplate != null) {
+      bufferRanking = bufferRanking + 0.001f;
+      String bestQuestionTempalateRawString = rateQuery(questionProperties, queryTemplate);
+      if (null != bestQuestionTempalateRawString) {
+        String[] bestQuestionTemplateTokenArray = bestQuestionTempalateRawString.split("-");
+        String bestQuestionTemplate = bestQuestionTemplateTokenArray[0];
         QueryParameterReplacer queryParameterReplacer = new QueryParameterReplacer(questionTokens,
           bestQuestionTemplate,
           queryTemplate);
         List<ParameterizedSparqlString> queriesWithReplacedParameters = queryParameterReplacer.getQueriesWithReplacedParameters();
-        if (null != queriesWithReplacedParameters)
-          possibleQueries.addAll(queriesWithReplacedParameters);
+        String queryRanking = bestQuestionTemplateTokenArray[1];
+        if (null != queriesWithReplacedParameters && null != queryRanking) {
+          possibleQueries.put(Float.parseFloat(queryRanking) + bufferRanking, queriesWithReplacedParameters);
+        }
       }
     }
     logger.debug("QueryTemplate amount: {}", possibleQueries.size());
@@ -79,7 +82,7 @@ public class QueryPatternMatcher {
    * Rate a query according to the properties of the given question.
    *
    * @param questionProperties Analyzed properties of the input question.
-   * @param queryTemplate A query template from the prepared query set.
+   * @param queryTemplate      A query template from the prepared query set.
    * @return A ranking for the query regarding the question between 0 and 1.
    */
   private String rateQuery(QuestionProperties questionProperties, QueryTemplate queryTemplate) {
@@ -114,7 +117,7 @@ public class QueryPatternMatcher {
     }
     if (max >= QUERY_RANKING_THRESHOlD) {
       logger.info("{} - {}: {}", bestFitQuestion, questionProperties.getRepresentationForm(), max);
-      return bestFitQuestion;
+      return String.format("%s - %f", bestFitQuestion, max);
     } else {
       logger.warn("Similarity too low. Maximum is only {}", max);
       return null;
