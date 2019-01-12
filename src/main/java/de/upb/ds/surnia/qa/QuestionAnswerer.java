@@ -45,7 +45,6 @@ public class QuestionAnswerer extends AbstractQuestionAnswerer {
     AnswerContainer answer = null;
     if (queries.size() > 0) {
       for (Float bestQueryInxex : queries.keySet()) {
-        logger.info("QueryTemplate: " + queries.get(bestQueryInxex).toString());
         answer = getAnswerForQuery(queries.get(bestQueryInxex).get(0));
         if (answer != null) {
           break;

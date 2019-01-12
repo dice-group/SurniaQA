@@ -27,6 +27,7 @@ public class SurniaUtil {
     return 1.0d - (v0[s2.length()] / len);
   }
 
+  //https://rosettacode.org/wiki/Levenshtein_distance#Java
   public static int levenshtein(String a, String b) {
     a = a.toLowerCase();
     b = b.toLowerCase();

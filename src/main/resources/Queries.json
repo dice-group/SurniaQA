@@ -180,7 +180,7 @@
     "ontologyAmount": 1,
     "propertyAmount": 0,
     "sparqlParams": ["O1"],
-    "sparqlTemplate": "SELECT DISTINCT ?x WHERE { ?x ?O1 ?y . }GROUP BY DESC (?x) HAVING(COUNT(?y) > 1)",
+    "sparqlTemplate": "SELECT DISTINCT ?x WHERE { ?x <http://dbpedia.org/ontology/author> ?y . }GROUP BY ?x HAVING(COUNT(?y) > 1) ORDER BY DESC (?x)",
     "exampleQuestions": [
       "WDT O1 VBP VBN JJR IN CD NN ."
     ]
