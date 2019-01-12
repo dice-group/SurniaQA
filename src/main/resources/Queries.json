@@ -1,18 +1,11 @@
 [
   {
-    "questionStartWord": [
-      "LIST",
-      "WHO",
-      "GIVE"
-    ],
+    "questionStartWord": ["LIST", "WHO", "GIVE"],
     "containsSuperlative": false,
     "resourceAmount": 1,
     "ontologyAmount": 1,
     "propertyAmount": 0,
-    "sparqlParams": [
-      "O1",
-      "R1"
-    ],
+    "sparqlParams": ["O1", "R1"],
     "sparqlTemplate": "SELECT DISTINCT ?x WHERE { ?x ?O1 ?R1 . }",
     "exampleQuestions": [
       "VB DT O1 IN R1 .",
@@ -24,17 +17,12 @@
     ]
   },
   {
-    "questionStartWord": [
-      "WHERE",
-      "WHICH"
-    ],
+    "questionStartWord": ["WHERE", "WHICH"],
     "containsSuperlative": false,
     "resourceAmount": 1,
     "ontologyAmount": 0,
     "propertyAmount": 0,
-    "sparqlParams": [
-      "R1"
-    ],
+    "sparqlParams": ["R1"],
     "sparqlTemplate": "SELECT DISTINCT ?x WHERE { ?R1 <http://dbpedia.org/ontology/country> ?x . }",
     "exampleQuestions": [
       "WDT NN VBD R1 VB .",
@@ -43,24 +31,12 @@
     ]
   },
   {
-    "questionStartWord": [
-      "WHAT",
-      "WHICH",
-      "WHO",
-      "LIST",
-      "GIVE",
-      "WHERE",
-      "IN",
-      "HOW"
-    ],
+    "questionStartWord": ["WHAT", "WHICH", "WHO", "LIST", "GIVE", "WHERE", "IN", "HOW"],
     "containsSuperlative": false,
     "resourceAmount": 1,
     "ontologyAmount": 1,
     "propertyAmount": 0,
-    "sparqlParams": [
-      "O1",
-      "R1"
-    ],
+    "sparqlParams": ["O1", "R1"],
     "sparqlTemplate": "SELECT DISTINCT ?x WHERE { ?R1 ?O1 ?x . }",
     "exampleQuestions": [
       "WDT VBZ DT O1 IN R1 .",
@@ -83,107 +59,76 @@
       "WRB JJ O1 VBP VBG IN R1 .",
       "WP VBP DT O1 IN R1 .",
       "WDT JJ NN NN VBD DT O1 IN R1 ."
+
     ]
   },
   {
-    "questionStartWord": [
-      "WHEN"
-    ],
+    "questionStartWord": ["WHEN"],
     "containsSuperlative": false,
     "resourceAmount": 1,
     "ontologyAmount": 0,
     "propertyAmount": 0,
-    "sparqlParams": [
-      "R1"
-    ],
+    "sparqlParams": ["R1"],
     "sparqlTemplate": "SELECT DISTINCT ?x WHERE { ?R1 <http://dbpedia.org/ontology/date> ?x . }",
     "exampleQuestions": [
       "WRB VBD DT R1 VB ."
     ]
   },
   {
-    "questionStartWord": [
-      "WHO"
-    ],
+    "questionStartWord": ["WHO"],
     "containsSuperlative": false,
     "resourceAmount": 2,
     "ontologyAmount": 1,
     "propertyAmount": 0,
-    "sparqlParams": [
-      "O1",
-      "R1",
-      "R2"
-    ],
+    "sparqlParams": ["O1", "R1", "R2"],
     "sparqlTemplate": "SELECT DISTINCT ?x WHERE { ?x ?O1 ?R2, ?R1 . }",
     "exampleQuestions": [
       "WP VBD DT O1 IN R1 CC R2 ."
     ]
   },
   {
-    "questionStartWord": [
-      "GIVE"
-    ],
+    "questionStartWord": ["GIVE"],
     "containsSuperlative": false,
     "resourceAmount": 2,
     "ontologyAmount": 1,
     "propertyAmount": 0,
-    "sparqlParams": [
-      "O1",
-      "R1",
-      "R2"
-    ],
+    "sparqlParams": ["O1", "R1", "R2"],
     "sparqlTemplate": "SELECT DISTINCT ?x WHERE { ?R1 ?O1 ?x . ?R2 ?O1 ?x . }",
     "exampleQuestions": [
       "VB DT O1 IN R1 CC R2 ."
     ]
   },
   {
-    "questionStartWord": [
-      "IS"
-    ],
+    "questionStartWord": ["IS"],
     "containsSuperlative": false,
     "resourceAmount": 2,
     "ontologyAmount": 0,
     "propertyAmount": 0,
-    "sparqlParams": [
-      "R1",
-      "R2"
-    ],
+    "sparqlParams": ["R1", "R2"],
     "sparqlTemplate": "ASK WHERE { ?R1 <http://dbpedia.org/ontology/industry> ?R2 . }",
     "exampleQuestions": [
       "VBZ R1 DT R2 NN ."
     ]
   },
   {
-    "questionStartWord": [
-      "HOW"
-    ],
+    "questionStartWord": ["HOW"],
     "containsSuperlative": false,
     "resourceAmount": 1,
     "ontologyAmount": 0,
     "propertyAmount": 1,
-    "sparqlParams": [
-      "P1",
-      "R1"
-    ],
+    "sparqlParams": ["P1", "R1"],
     "sparqlTemplate": "SELECT DISTINCT (SUM(?y) as ?x) WHERE { ?R1 ?P1 ?y . } ",
     "exampleQuestions": [
       "WRB JJ P1 VBD R1 VB ."
     ]
   },
   {
-    "questionStartWord": [
-      "HOW",
-      "WHEN"
-    ],
+    "questionStartWord": ["HOW", "WHEN"],
     "containsSuperlative": false,
     "resourceAmount": 1,
     "ontologyAmount": 0,
     "propertyAmount": 1,
-    "sparqlParams": [
-      "P1",
-      "R1"
-    ],
+    "sparqlParams": ["P1", "R1"],
     "sparqlTemplate": "SELECT DISTINCT ?x WHERE { ?R1 ?P1 ?x . }",
     "exampleQuestions": [
       "WRB JJ P1 VBZ R1 VB .",
@@ -191,53 +136,36 @@
     ]
   },
   {
-    "questionStartWord": [
-      "WAS"
-    ],
+    "questionStartWord": ["WAS"],
     "containsSuperlative": false,
     "resourceAmount": 3,
     "ontologyAmount": 1,
     "propertyAmount": 0,
-    "sparqlParams": [
-      "O1",
-      "R1",
-      "R2",
-      "R3"
-    ],
+    "sparqlParams": ["O1", "R1", "R2", "R3"],
     "sparqlTemplate": "ASK WHERE { ?R1 ?O1 ?R2 , ?R3 . }",
     "exampleQuestions": [
       "VBD R1 VBN IN DT O1 TO R2 CC R3 ."
     ]
   },
   {
-    "questionStartWord": [
-      "DOES"
-    ],
+    "questionStartWord": ["DOES"],
     "containsSuperlative": false,
     "resourceAmount": 1,
     "ontologyAmount": 1,
     "propertyAmount": 0,
-    "sparqlParams": [
-      "O1",
-      "R1"
-    ],
+    "sparqlParams": ["O1", "R1"],
     "sparqlTemplate": "ASK WHERE { ?R1 ?O1 ?x . }",
     "exampleQuestions": [
       "NNP R1 VBP DT O1 ."
     ]
   },
   {
-    "questionStartWord": [
-      "LIST"
-    ],
+    "questionStartWord": ["LIST"],
     "containsSuperlative": false,
     "resourceAmount": 1,
     "ontologyAmount": 1,
     "propertyAmount": 0,
-    "sparqlParams": [
-      "O1",
-      "R1"
-    ],
+    "sparqlParams": ["O1", "R1"],
     "sparqlTemplate": "SELECT DISTINCT ?x WHERE { ?x ?O1 ?R1 . }ORDER BY DESC (?x) LIMIT 3",
     "exampleQuestions": [
       "VB DT NNS O1 R1 .",
@@ -246,32 +174,24 @@
     ]
   },
   {
-    "questionStartWord": [
-      "WHICH"
-    ],
+    "questionStartWord": ["WHICH"],
     "containsSuperlative": false,
     "resourceAmount": 0,
     "ontologyAmount": 1,
     "propertyAmount": 0,
-    "sparqlParams": [
-      "O1"
-    ],
+    "sparqlParams": ["O1"],
     "sparqlTemplate": "SELECT DISTINCT ?x WHERE { ?x ?O1 ?y . }GROUP BY DESC (?x) HAVING(COUNT(?y) > 1)",
     "exampleQuestions": [
       "WDT O1 VBP VBN JJR IN CD NN ."
     ]
   },
   {
-    "questionStartWord": [
-      "HOW"
-    ],
+    "questionStartWord": ["HOW"],
     "containsSuperlative": false,
     "resourceAmount": 1,
     "ontologyAmount": 1,
     "propertyAmount": 0,
-    "sparqlParams": [
-      "O1"
-    ],
+    "sparqlParams": ["O1"],
     "sparqlTemplate": "SELECT (COUNT(DISTINCT ?x) as ?y) WHERE { ?x ?O1 ?R1 . }",
     "exampleQuestions": [
       "WRB JJ NNS R1 VBZ VBN O1 IN ."
