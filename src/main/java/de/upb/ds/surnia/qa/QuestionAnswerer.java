@@ -26,12 +26,13 @@ public class QuestionAnswerer extends AbstractQuestionAnswerer {
   private ProcessingPipeline preprocessingPipeline;
   private QueryPatternMatcher queryPatternMatcher;
 
-  @Autowired
-  private Environment env;
+  private final Environment env;
 
-  public QuestionAnswerer() {
+  @Autowired
+  public QuestionAnswerer(Environment env) {
     preprocessingPipeline = new ProcessingPipeline();
     queryPatternMatcher = new QueryPatternMatcher("Queries.json");
+    this.env = env;
   }
 
   @Override

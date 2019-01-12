@@ -1,5 +1,6 @@
 package de.upb.ds.surnia.preprocessing.model;
 
+import de.upb.ds.surnia.util.SurniaUtil;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.shingle.ShingleFilter;
@@ -70,19 +71,19 @@ public class NGrams {
    */
   public List<Token> produceTokens() {
     List<Token> tokenList = new ArrayList<>();
-    this.nGrams.stream().forEach(nGram -> {
-      this.tokensFromAutoIndex.keySet().stream().forEach(tokenFromAutoIndex -> {
+    for (String nGram : this.nGrams) {
+      this.tokensFromAutoIndex.keySet().forEach(tokenFromAutoIndex -> {
         String autoIndexToken = tokenFromAutoIndex.replaceAll("\\\\", "").toLowerCase();
-        if (nGram.equals(autoIndexToken) || English.plural(autoIndexToken).equals(nGram)) {
+        if (nGram.equals(autoIndexToken) || English.plural(autoIndexToken).equals(nGram) || SurniaUtil.levenshtein(nGram, autoIndexToken) <=2) {
           // TODO: 07/01/2019 check if we need to use equals or contains
-          // TODO: 11/01/2019 String similarity would be a good thing to implement here 
+          // TODO: 11/01/2019 String similarity would be a good thing to implement here
           // TODO: 11/01/2019 Also try generating all possible combinations of a string that contains more than one label e.g "total population" and "population total"
           Token token = new Token(nGram);
           token.addUris(tokensFromAutoIndex.get(tokenFromAutoIndex));
           tokenList.add(token);
         }
       });
-    });
+    }
     return tokenList;
   }
 }

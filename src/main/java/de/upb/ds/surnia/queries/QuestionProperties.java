@@ -36,14 +36,15 @@ public class QuestionProperties {
       for (Token token : questionTokens) {
         if (!containsSuperlative) containsSuperlative = token.getType().equals("JJS") || token.getType().equals("RBS");
         if (token.getUris() != null && token.getUris().size() > 0) {
-          if (token.getUris().iterator().next().contains("http://dbpedia.org/resource/")) {
+          String nextToken = token.getUris().iterator().next();
+          if (nextToken.contains("http://dbpedia.org/resource/") || nextToken.contains("http://aksw.org/notInWiki/")) {
             resourceAmount++;
             representationFormElements.add("R");
-          } else if (token.getUris().iterator().next().contains("http://dbpedia.org/ontology/")) {
+          } else if (nextToken.contains("http://dbpedia.org/ontology/")) {
             ontologyAmount++;
             representationFormElements.add("O");
           }
-          else if (token.getUris().iterator().next().contains("http://dbpedia.org/property/")) {
+          else if (nextToken.contains("http://dbpedia.org/property/")) {
             propertyAmount++;
             representationFormElements.add("P");
           }

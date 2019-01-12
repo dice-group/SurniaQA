@@ -167,13 +167,14 @@ public class QueryParameterReplacer {
   private List<String> getUrisForToken(Token token, boolean resourceWanted) {
     if (!usedTokens.contains(token)) {
       if (!token.getUris().isEmpty()) {
-        if (token.getUris().iterator().next().contains("resource") && resourceWanted) {
+        String nextToken = token.getUris().iterator().next();
+        if (resourceWanted && nextToken.contains("resource") || nextToken.contains("notInWiki")) {
           usedTokens.add(token);
           return new ArrayList<>(token.getUris());
-        } else if (token.getUris().iterator().next().contains("ontology")) {
+        } else if (nextToken.contains("ontology")) {
           usedTokens.add(token);
           return new ArrayList<>(token.getUris());
-        } else if (token.getUris().iterator().next().contains("property")) {
+        } else if (nextToken.contains("property")) {
           usedTokens.add(token);
           return new ArrayList<>(token.getUris());
         } else {

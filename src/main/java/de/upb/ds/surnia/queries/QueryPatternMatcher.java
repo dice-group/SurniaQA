@@ -3,6 +3,7 @@ package de.upb.ds.surnia.queries;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.upb.ds.surnia.preprocessing.model.Token;
+import de.upb.ds.surnia.util.SurniaUtil;
 import org.apache.jena.query.ParameterizedSparqlString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,7 +109,7 @@ public class QueryPatternMatcher {
     double max = 0.0f;
     String bestFitQuestion = "";
     for (String questionTemplate : queryTemplate.getExampleQuestions()) {
-      double similarity = stringSimilarity(questionTemplate,
+      double similarity = SurniaUtil.stringSimilarity(questionTemplate,
         questionProperties.getRepresentationForm());
       if (similarity > max) {
         max = similarity;
@@ -123,32 +124,4 @@ public class QueryPatternMatcher {
       return null;
     }
   }
-
-  private double stringSimilarity(String s1, String s2) {
-    double len = Math.max(s1.length(), s2.length());
-    int[] v0 = new int[s2.length() + 1];
-    int[] v1 = new int[s2.length() + 1];
-    int[] vtemp;
-    for (int i = 0; i < v0.length; i++) {
-      v0[i] = i;
-    }
-    for (int i = 0; i < s1.length(); i++) {
-      v1[0] = i + 1;
-      for (int j = 0; j < s2.length(); j++) {
-        int cost = 1;
-        if (s1.charAt(i) == s2.charAt(j)) {
-          cost = 0;
-        }
-        v1[j + 1] = Math.min(
-          v1[j] + 1,
-          Math.min(v0[j + 1] + 1, v0[j] + cost));
-      }
-      vtemp = v0;
-      v0 = v1;
-      v1 = vtemp;
-    }
-
-    return 1.0d - (v0[s2.length()] / len);
-  }
-
 }
