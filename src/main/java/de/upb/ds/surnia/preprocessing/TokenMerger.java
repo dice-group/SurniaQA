@@ -1,6 +1,7 @@
 package de.upb.ds.surnia.preprocessing;
 
 import de.upb.ds.surnia.preprocessing.model.Token;
+import de.upb.ds.surnia.util.SurniaUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,7 +27,7 @@ public class TokenMerger {
       boolean appearanceFound = false;
       boolean entityAdded = false;
       for (Token token : oldTokens) {
-          if (newToken.getText().contains(token.getText().toLowerCase())) {
+          if (newToken.getText().contains(token.getText().toLowerCase()) || SurniaUtil.levenshtein(newToken.getText(), token.getText()) <=2) {
               if (!appearanceFound) {
                   appearanceFound = true;
               }

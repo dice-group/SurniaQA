@@ -23,6 +23,7 @@ public abstract class AbstractQuestionAnswerer {
     throws IOException, ParseException {
 
     String varName = answerType.toString().toLowerCase();
+//    String varName = "resource";
     JSONObject answerJson = new JSONObject();
     JSONObject head = new JSONObject();
     JSONArray varArr = new JSONArray();

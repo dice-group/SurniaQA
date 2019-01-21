@@ -12,6 +12,7 @@ public class QuestionProperties {
   private String questionStart;
   private int resourceAmount;
   private int ontologyAmount;
+  private int propertyAmount;
   public List<Token> tokens;
   private String representationForm;
 
@@ -20,7 +21,6 @@ public class QuestionProperties {
    *
    * @param questionTokens All tokens of the given question.
    */
-  // TODO: 18/11/2018 <S> Implementation will be changed and decoupbled from DBPedia
   public QuestionProperties(List<Token> questionTokens) {
     // Set all properties for the question according to the question tokens
     if (questionTokens.size() > 0) {
@@ -31,15 +31,21 @@ public class QuestionProperties {
       LinkedList<String> representationFormElements = new LinkedList<>();
       resourceAmount = 0;
       ontologyAmount = 0;
+      propertyAmount = 0;
       for (Token token : questionTokens) {
         if (!containsSuperlative) containsSuperlative = token.getType().equals("JJS") || token.getType().equals("RBS");
         if (token.getUris() != null && token.getUris().size() > 0) {
-          if (token.getUris().iterator().next().contains("http://dbpedia.org/resource/")) {
+          String nextToken = token.getUris().iterator().next();
+          if (nextToken.contains("http://dbpedia.org/resource/") || nextToken.contains("http://aksw.org/notInWiki/")) {
             resourceAmount++;
             representationFormElements.add("R");
-          } else if (token.getUris().iterator().next().contains("http://dbpedia.org/ontology/")) {
+          } else if (nextToken.contains("http://dbpedia.org/ontology/")) {
             ontologyAmount++;
-            representationFormElements.add(token.getType());
+            representationFormElements.add("O");
+          }
+          else if (nextToken.contains("http://dbpedia.org/property/")) {
+            propertyAmount++;
+            representationFormElements.add("P");
           }
         } else {
           representationFormElements.add(token.getType());
@@ -80,6 +86,7 @@ public class QuestionProperties {
       + "\tquestionStart='" + questionStart + '\'' + '\n'
       + "\tresourceAmount=" + resourceAmount + '\n'
       + "\tontologyAmount=" + ontologyAmount + '\n'
+      + "\tpropertyAmount=" + propertyAmount + '\n'
       + "\ttokens=" + tokens + '\n'
       + "\trepresentationForm='" + representationForm + '\'' + '\n'
       + '}';

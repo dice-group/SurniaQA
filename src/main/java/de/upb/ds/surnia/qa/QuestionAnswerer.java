@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Component
@@ -25,12 +26,13 @@ public class QuestionAnswerer extends AbstractQuestionAnswerer {
   private ProcessingPipeline preprocessingPipeline;
   private QueryPatternMatcher queryPatternMatcher;
 
-  @Autowired
-  private Environment env;
+  private final Environment env;
 
-  public QuestionAnswerer() {
+  @Autowired
+  public QuestionAnswerer(Environment env) {
     preprocessingPipeline = new ProcessingPipeline();
     queryPatternMatcher = new QueryPatternMatcher("Queries.json");
+    this.env = env;
   }
 
   @Override
@@ -39,12 +41,11 @@ public class QuestionAnswerer extends AbstractQuestionAnswerer {
     List<Token> tokens = preprocessingPipeline.processQuestion(question);
 
     // Get a list with all queries rated above the threshold for the question
-    List<ParameterizedSparqlString> queries = queryPatternMatcher.findMatchingQueries(tokens);
+    Map<Float,List<ParameterizedSparqlString>> queries = queryPatternMatcher.findMatchingQueries(tokens);
     AnswerContainer answer = null;
     if (queries.size() > 0) {
-      for (ParameterizedSparqlString query : queries) {
-        logger.info("QueryTemplate: " + query.toString());
-        answer = getAnswerForQuery(query);
+      for (Float bestQueryInxex : queries.keySet()) {
+        answer = getAnswerForQuery(queries.get(bestQueryInxex).get(0));
         if (answer != null) {
           break;
         }
@@ -52,7 +53,6 @@ public class QuestionAnswerer extends AbstractQuestionAnswerer {
     } else {
       logger.info("No query with a rating above the threshold found.");
     }
-
     if (answer == null) {
       answer = new AnswerContainer();
       answer.setType(AnswerType.BOOLEAN);

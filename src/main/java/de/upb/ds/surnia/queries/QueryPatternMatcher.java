@@ -3,16 +3,14 @@ package de.upb.ds.surnia.queries;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.upb.ds.surnia.preprocessing.model.Token;
+import de.upb.ds.surnia.util.SurniaUtil;
 import org.apache.jena.query.ParameterizedSparqlString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class QueryPatternMatcher {
 
@@ -56,17 +54,25 @@ public class QueryPatternMatcher {
    * @param questionTokens Tokens of the question with the analysis of the pre-processing pipeline.
    * @return A list with all parameterized SPARQL queryTemplates with a good rating.
    */
-  public List<ParameterizedSparqlString> findMatchingQueries(List<Token> questionTokens) {
+  public Map<Float, List<ParameterizedSparqlString>> findMatchingQueries(List<Token> questionTokens) {
+    float bufferRanking = 0.000f; // This is used to break tie between queries; Breaking tie is necessary to process all queries
     QuestionProperties questionProperties = new QuestionProperties(questionTokens);
     logger.info("{}", questionProperties);
-    LinkedList<ParameterizedSparqlString> possibleQueries = new LinkedList<>();
+    Map<Float, List<ParameterizedSparqlString>> possibleQueries = new TreeMap<>(Collections.reverseOrder());
     for (QueryTemplate queryTemplate : queryTemplates) {
-      String bestQuestionTemplate = rateQuery(questionProperties, queryTemplate);
-      if (bestQuestionTemplate != null) {
+      bufferRanking = bufferRanking + 0.001f;
+      String bestQuestionTempalateRawString = rateQuery(questionProperties, queryTemplate);
+      if (null != bestQuestionTempalateRawString) {
+        String[] bestQuestionTemplateTokenArray = bestQuestionTempalateRawString.split("-");
+        String bestQuestionTemplate = bestQuestionTemplateTokenArray[0];
         QueryParameterReplacer queryParameterReplacer = new QueryParameterReplacer(questionTokens,
           bestQuestionTemplate,
           queryTemplate);
-        possibleQueries.addAll(queryParameterReplacer.getQueriesWithReplacedParameters());
+        List<ParameterizedSparqlString> queriesWithReplacedParameters = queryParameterReplacer.getQueriesWithReplacedParameters();
+        String queryRanking = bestQuestionTemplateTokenArray[1];
+        if (null != queriesWithReplacedParameters && null != queryRanking) {
+          possibleQueries.put(Float.parseFloat(queryRanking) + bufferRanking, queriesWithReplacedParameters);
+        }
       }
     }
     logger.debug("QueryTemplate amount: {}", possibleQueries.size());
@@ -77,7 +83,7 @@ public class QueryPatternMatcher {
    * Rate a query according to the properties of the given question.
    *
    * @param questionProperties Analyzed properties of the input question.
-   * @param queryTemplate A query template from the prepared query set.
+   * @param queryTemplate      A query template from the prepared query set.
    * @return A ranking for the query regarding the question between 0 and 1.
    */
   private String rateQuery(QuestionProperties questionProperties, QueryTemplate queryTemplate) {
@@ -103,7 +109,7 @@ public class QueryPatternMatcher {
     double max = 0.0f;
     String bestFitQuestion = "";
     for (String questionTemplate : queryTemplate.getExampleQuestions()) {
-      double similarity = stringSimilarity(questionTemplate,
+      double similarity = SurniaUtil.stringSimilarity(questionTemplate,
         questionProperties.getRepresentationForm());
       if (similarity > max) {
         max = similarity;
@@ -112,38 +118,10 @@ public class QueryPatternMatcher {
     }
     if (max >= QUERY_RANKING_THRESHOlD) {
       logger.info("{} - {}: {}", bestFitQuestion, questionProperties.getRepresentationForm(), max);
-      return bestFitQuestion;
+      return String.format("%s - %f", bestFitQuestion, max);
     } else {
       logger.warn("Similarity too low. Maximum is only {}", max);
       return null;
     }
   }
-
-  private double stringSimilarity(String s1, String s2) {
-    double len = Math.max(s1.length(), s2.length());
-    int[] v0 = new int[s2.length() + 1];
-    int[] v1 = new int[s2.length() + 1];
-    int[] vtemp;
-    for (int i = 0; i < v0.length; i++) {
-      v0[i] = i;
-    }
-    for (int i = 0; i < s1.length(); i++) {
-      v1[0] = i + 1;
-      for (int j = 0; j < s2.length(); j++) {
-        int cost = 1;
-        if (s1.charAt(i) == s2.charAt(j)) {
-          cost = 0;
-        }
-        v1[j + 1] = Math.min(
-          v1[j] + 1,
-          Math.min(v0[j + 1] + 1, v0[j] + cost));
-      }
-      vtemp = v0;
-      v0 = v1;
-      v1 = vtemp;
-    }
-
-    return 1.0d - (v0[s2.length()] / len);
-  }
-
 }

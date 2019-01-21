@@ -42,12 +42,14 @@ public class QueryParameterReplacer {
   public List<ParameterizedSparqlString> getQueriesWithReplacedParameters() {
     LinkedList<ParameterizedSparqlString> queries = new LinkedList<>();
     List<HashMap<String, String>> combinations = generateParameterReplacementCombinations();
-    for (HashMap<String, String> parameterReplacement : combinations) {
-      ParameterizedSparqlString query = new ParameterizedSparqlString(queryString);
-      for (String param : params) {
-        query.setParam(param, ResourceFactory.createResource(parameterReplacement.get(param)));
+    if (null != combinations) {
+      for (HashMap<String, String> parameterReplacement : combinations) {
+        ParameterizedSparqlString query = new ParameterizedSparqlString(queryString);
+        for (String param : params) {
+          query.setParam(param, ResourceFactory.createResource(parameterReplacement.get(param)));
+        }
+        queries.add(query);
       }
-      queries.add(query);
     }
     return queries;
   }
@@ -61,7 +63,10 @@ public class QueryParameterReplacer {
     possibleParamInputs = new HashMap<>();
     for (String param : params) {
       List<String> uris = getUrisFromClosestToken(param);
-      possibleParamInputs.put(param, uris);
+      if (null != uris)
+        possibleParamInputs.put(param, uris);
+      else
+        return null;
     }
 
     /* Produce a array which holds the information which combination we should use now.
@@ -93,8 +98,10 @@ public class QueryParameterReplacer {
 
   private boolean allCombinationsProduced(int[] counter) {
     for (int i = 0; i < counter.length; i++) {
-      if (counter[i] < (possibleParamInputs.get(params[i]).size() - 1)) {
-        return false;
+      if (null != possibleParamInputs.get(params[i])) {
+        if (counter[i] < (possibleParamInputs.get(params[i]).size() - 1)) {
+          return false;
+        }
       }
     }
     return true;
@@ -160,13 +167,14 @@ public class QueryParameterReplacer {
   private List<String> getUrisForToken(Token token, boolean resourceWanted) {
     if (!usedTokens.contains(token)) {
       if (!token.getUris().isEmpty()) {
-        if (token.getUris().iterator().next().contains("resource") && resourceWanted) {
+        String nextToken = token.getUris().iterator().next();
+        if (resourceWanted && nextToken.contains("resource") || nextToken.contains("notInWiki")) {
           usedTokens.add(token);
           return new ArrayList<>(token.getUris());
-        } else if (token.getUris().iterator().next().contains("ontology") && !resourceWanted) {
+        } else if (nextToken.contains("ontology")) {
           usedTokens.add(token);
           return new ArrayList<>(token.getUris());
-        } else if (token.getUris().iterator().next().contains("property")) {
+        } else if (nextToken.contains("property")) {
           usedTokens.add(token);
           return new ArrayList<>(token.getUris());
         } else {
