@@ -1,7 +1,6 @@
 package de.upb.ds.surnia;
 
 import com.github.jsonldjava.utils.JsonUtils;
-import de.upb.ds.surnia.preprocessing.tasks.AutoindexTask;
 import de.upb.ds.surnia.qa.QuestionAnswerer;
 import org.aksw.qa.commons.datastructure.Question;
 import org.json.simple.JSONObject;
@@ -19,15 +18,13 @@ import java.util.Map;
 @RestController
 public class SurniaRestController {
 
-  static Logger logger = LoggerFactory.getLogger(SurniaRestController.class);
+  private static Logger logger = LoggerFactory.getLogger(SurniaRestController.class);
+
+  private final QuestionAnswerer qa;
 
   @Autowired
-  private QuestionAnswerer qa;
-
-  private final AutoindexTask autoindexTask;
-
-  public SurniaRestController(AutoindexTask autoindexTask) {
-    this.autoindexTask = autoindexTask;
+  public SurniaRestController(QuestionAnswerer qa) {
+    this.qa = qa;
   }
 
   /**

@@ -30,6 +30,8 @@ public class NGrams {
    * Produces Shingles/Ngrams from a given string.
    * e.g For a string "Who is relative of Jenny McCarthy?" this will generate
    * McCarthy, Jenny, Jenny McCarthy, Who, relative
+   * The default implementation of ShinglesFilter/StandardAnalyzer skips all the stopWords in sentence
+   * e.g "is", "the", "as" will not be included in NGrams
    *
    * @param sentence
    * @param tokensFromAutoIndex

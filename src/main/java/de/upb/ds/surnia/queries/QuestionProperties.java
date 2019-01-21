@@ -21,7 +21,6 @@ public class QuestionProperties {
    *
    * @param questionTokens All tokens of the given question.
    */
-  // TODO: 18/11/2018 <S> Implementation will be changed and decoupbled from DBPedia
   public QuestionProperties(List<Token> questionTokens) {
     // Set all properties for the question according to the question tokens
     if (questionTokens.size() > 0) {
