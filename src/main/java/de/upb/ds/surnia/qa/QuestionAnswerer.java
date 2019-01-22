@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class QuestionAnswerer extends AbstractQuestionAnswerer {
@@ -41,11 +42,12 @@ public class QuestionAnswerer extends AbstractQuestionAnswerer {
     List<Token> tokens = preprocessingPipeline.processQuestion(question);
 
     // Get a list with all queries rated above the threshold for the question
-    Map<Float,List<ParameterizedSparqlString>> queries = queryPatternMatcher.findMatchingQueries(tokens);
+    Map<Float, List<ParameterizedSparqlString>> queries = queryPatternMatcher.findMatchingQueries(tokens);
     AnswerContainer answer = null;
     if (queries.size() > 0) {
       for (Float bestQueryInxex : queries.keySet()) {
-        answer = getAnswerForQuery(queries.get(bestQueryInxex).get(0));
+        if (queries.get(bestQueryInxex).size() > 0)
+          answer = getAnswerForQuery(queries.get(bestQueryInxex).get(0));
         if (answer != null) {
           break;
         }
@@ -143,24 +145,33 @@ public class QuestionAnswerer extends AbstractQuestionAnswerer {
   private Set<RDFNode> querySPARQLService(ParameterizedSparqlString queryString) {
     String queryStringRepresentation = queryString.toString();
     logger.info("Querying SPARQL endpoint with: " + queryStringRepresentation);
-    QueryExecution execution = QueryExecutionFactory
-      .sparqlService(env.getProperty("sparql.endpoint"), queryString.asQuery());
-    ResultSet resultSet = execution.execSelect();
-    List<Var> projectVars = queryString.asQuery().getProjectVars();
-    String projectionVar;
-    if (!projectVars.isEmpty() && queryString.asQuery().getAggregators().isEmpty()) {
-      projectionVar = queryString.asQuery().getProjectVars().get(0).getName();
-    } else {
-      projectionVar = resultSet.getResultVars().get(0);
-    }
     Set<RDFNode> nodes = new HashSet<>();
-    QuerySolution qs;
-    while (resultSet.hasNext()) {
-      qs = resultSet.next();
-      RDFNode rdfNode = qs.get(projectionVar);
-      nodes.add(rdfNode);
+    QueryExecution execution = null;
+    try {
+      execution = QueryExecutionFactory
+        .sparqlService(env.getProperty("sparql.endpoint"), queryString.asQuery());
+      execution.setTimeout(1000, TimeUnit.MILLISECONDS);
+      ResultSet resultSet = execution.execSelect();
+      List<Var> projectVars = queryString.asQuery().getProjectVars();
+      String projectionVar;
+      if (!projectVars.isEmpty() && queryString.asQuery().getAggregators().isEmpty()) {
+        projectionVar = queryString.asQuery().getProjectVars().get(0).getName();
+      } else {
+        projectionVar = resultSet.getResultVars().get(0);
+      }
+      QuerySolution qs;
+      while (resultSet.hasNext()) {
+        qs = resultSet.next();
+        RDFNode rdfNode = qs.get(projectionVar);
+        nodes.add(rdfNode);
+      }
+    } catch (QueryException e) {
+      e.printStackTrace();
+    } finally {
+      if (execution != null) {
+        execution.close();
+      }
     }
-
     if (nodes.size() > 0) {
       return nodes;
     } else {
@@ -173,6 +184,7 @@ public class QuestionAnswerer extends AbstractQuestionAnswerer {
     logger.info("Query SPARQL endpoint with: " + queryStringRepresentation);
     QueryExecution execution = QueryExecutionFactory
       .sparqlService(env.getProperty("sparql.endpoint"), queryString.asQuery());
+    execution.setTimeout(5000, TimeUnit.MILLISECONDS);
     boolean result = execution.execAsk();
     logger.info("Result: " + result);
     return result;
